@@ -1,4 +1,4 @@
-package controls
+package Com
 
 import (
 "hrentabd"
@@ -6,13 +6,13 @@ import (
 	"os"
 )
 
-type ComHalt struct{
+type Halt struct{
 	Com
 }
 
 var ErrAppHalt = errors.New("** command <HALT> received\n")
 
-func (c *ComHalt)Exec(Tab *hrentabd.HrenTab, args []string)  (response string, err error){
+func (c *Halt)Exec(Tab hrentabd.Tab, args []string)  (response string, err error){
 
 	print(ErrAppHalt.Error())
 

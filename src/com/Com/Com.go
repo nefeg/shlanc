@@ -1,4 +1,4 @@
-package controls
+package Com
 
 import (
 	"errors"
@@ -14,7 +14,8 @@ type Com struct {
 
 }
 
-var ErrComUnresolved = errors.New("")
+var ErrComUnresolved    = errors.New("")
+var ErrComTooMuchArgs   = errors.New("too much argument")
 
 func New(name, alias string) Com{
 

@@ -1,25 +1,28 @@
-package controls
+package Com
 
 import (
 	"hrentabd"
 	"fmt"
 	"flag"
-	"hrentabd/Hren"
+	"hrentabd/Job"
 	"errors"
+	"log"
 )
 
-type ComAdd struct{
+type Add struct{
 	Com
 }
 
-var MsgUsageComAdd string = "usage: \n\tadd -index <index> -cmd <command to execute> -ttl <ttl> [--force] \n\tadd --help\n"
+var MsgUsageComAdd  = "usage: \n\tadd -index <index> -cmd <command to execute> -ttl <ttl> [--force] \n\tadd --help\n"
 
-func (c *ComAdd)Exec(Tab *hrentabd.HrenTab, args []string)  (response string, err error){
+func (c *Add)Exec(Tab hrentabd.Tab, args []string)  (response string, err error){
 
 	defer func(response *string, err *error){
 		if r := recover(); r!=nil{
 			*err        = errors.New(fmt.Sprint(r))
 			*response   = MsgUsageComAdd
+
+			log.Println("[ComAdd]Exec: ", r)
 		}
 
 	}(&response, &err)
@@ -43,8 +46,10 @@ func (c *ComAdd)Exec(Tab *hrentabd.HrenTab, args []string)  (response string, er
 
 	}else{
 
-		hr := Hren.New(INDEX, CMD)
+		hr := Job.New(INDEX)
+		hr.SetCommand(CMD)
 		hr.SetTtl(TTL)
+		hr.SetRepeatable(REPEAT)
 
 		Tab.PushJobs(OVERRIDE, hr)
 

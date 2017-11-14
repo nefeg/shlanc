@@ -1,17 +1,17 @@
-package controls
+package Com
 
 import (
 	"hrentabd"
 	"errors"
 )
 
-type ComQuit struct{
+type Quit struct{
 	Com
 }
 
 var ErrConnectionClosed = errors.New("** command <QUIT> received")
 
-func (c *ComQuit)Exec(Tab *hrentabd.HrenTab, args []string)  (string, error){
+func (c *Quit)Exec(Tab hrentabd.Tab, args []string)  (string, error){
 
 	return "OK", ErrConnectionClosed
 }

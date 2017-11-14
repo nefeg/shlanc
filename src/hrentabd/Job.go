@@ -2,7 +2,7 @@ package hrentabd
 
 import "time"
 
-type Hren interface {
+type Job interface {
 	Ttl()               int64
 	Index()             string
 	Command()           string
@@ -10,6 +10,10 @@ type Hren interface {
 	IsRepeatable()      bool
 
 	SetTtl(ttl int64)
+	SetCommand(command string)
 	SetTimeStart(t time.Time)
 	SetRepeatable(repeat bool)
+
+	Serialize() string
+	UnSerialize(data string) Job
 }

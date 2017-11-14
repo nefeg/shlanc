@@ -1,4 +1,4 @@
-package controls
+package Com
 
 import (
 	"hrentabd"
@@ -9,13 +9,13 @@ import (
 	"log"
 )
 
-type ComList struct{
+type List struct{
 	Com
 }
 
-var MsgUsageComList string = "usage: \n\tlist -index <index> -ts <timestamp> \n\tlist --help\n"
+var MsgUsageComList = "usage: \n\tlist -index <index> -ts <timestamp> \n\tlist --help\n"
 
-func (c *ComList)Exec(Tab *hrentabd.HrenTab, args []string)  (response string, err error){
+func (c *List)Exec(Tab hrentabd.Tab, args []string)  (response string, err error){
 
 	defer func(response *string, err *error){
 		if r := recover(); r!=nil{
@@ -25,7 +25,7 @@ func (c *ComList)Exec(Tab *hrentabd.HrenTab, args []string)  (response string, e
 
 	}(&response, &err)
 
-	var defaultResponse string = "empty"
+	var defaultResponse = "empty"
 
 	var INDEX string
 	var TS int64
@@ -41,12 +41,14 @@ func (c *ComList)Exec(Tab *hrentabd.HrenTab, args []string)  (response string, e
 
 
 	if INDEX != "" && TS != 0{
-		log.Fatalln("too much argument")
+		log.Panicln("[ComList] Exec: ", ErrComTooMuchArgs)
 	}
 
+	// show help
 	if HELP{
 		response = MsgUsageComList
 
+	//show item by index
 	}else if INDEX != ""{
 
 		if found := Tab.FindByIndex(INDEX); found != nil{
@@ -54,6 +56,8 @@ func (c *ComList)Exec(Tab *hrentabd.HrenTab, args []string)  (response string, e
 			response += fmt.Sprintln(INDEX, ":", found.Command(), "(", found.Ttl() ,")")
 		}
 
+
+	// show items by timestamp
 	}else if TS != 0{
 
 		if found := Tab.FindByTime(time.Unix(TS,0), false); found != nil{
@@ -68,6 +72,7 @@ func (c *ComList)Exec(Tab *hrentabd.HrenTab, args []string)  (response string, e
 			}
 		}
 
+	// show all jobs
 	}else{
 
 		response = ""

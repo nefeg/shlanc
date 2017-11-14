@@ -1,4 +1,4 @@
-package controls
+package Com
 
 import (
 	"hrentabd"
@@ -9,13 +9,13 @@ import (
 	"time"
 )
 
-type ComRemove struct{
+type Remove struct{
 	Com
 }
 
-var MsgUsageComRemove string = "usage: \n\trm -index <index> \n\trm -ts <timestamp> \n\trm --all \n\trm --help\n"
+var MsgUsageComRemove   = "usage: \n\trm -index <index> \n\trm -ts <timestamp> \n\trm --all \n\trm --help\n"
 
-func (c *ComRemove)Exec(Tab *hrentabd.HrenTab, args []string)  (response string, err error){
+func (c *Remove)Exec(Tab hrentabd.Tab, args []string)  (response string, err error){
 
 	defer func(response *string, err *error){
 		if r := recover(); r!=nil{
@@ -48,7 +48,7 @@ func (c *ComRemove)Exec(Tab *hrentabd.HrenTab, args []string)  (response string,
 	}else if INDEX != ""{
 
 		if !Tab.HasJob(INDEX){
-			log.Fatalln("index not found")
+			log.Panicln("index not found")
 		}
 
 		Tab.RmByIndex(INDEX)
@@ -58,7 +58,7 @@ func (c *ComRemove)Exec(Tab *hrentabd.HrenTab, args []string)  (response string,
 
 		t := time.Unix(TS,0)
 		if !Tab.HasJobs(t, true){
-			log.Fatalf("no jobs found for '%s'", t.String())
+			log.Panicf("no jobs found for '%s' \n", t.String())
 		}
 
 		response = "OK"
