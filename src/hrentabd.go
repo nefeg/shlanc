@@ -9,13 +9,14 @@ import (
 	"client-api"
 	"os"
 	LocalExec "executor/Local"
-	"storage/file"
+	//"storage/file"
 	"storage"
 	"hrentabd/Tab"
 	"client-api/telnet"
 	. "com"
 	. "com/Com"
 	"log"
+	"storage/redis"
 )
 
 // const VERSION       = "0.2"
@@ -50,7 +51,8 @@ func init()  {
 func main(){
 	log.Println("Starting...")
 
-	DB  = storage.Storage( file.NewFileStorage("/tmp/hren.db") )
+	DB  = storage.Storage( redis.NewRedisStorage("tcp", "127.0.0.1:6379"))
+	//DB  = storage.Storage( file.NewFileStorage("/tmp/hren.db") )
 	T   = hrentabd.Tab( Tab.New(DB))
 
 	defer func(){
