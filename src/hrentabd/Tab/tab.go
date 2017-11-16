@@ -60,7 +60,7 @@ func (h *tab) RmByIndex(index string) bool{
 
 			delete(h.hTList[ts], index)
 
-			h.db.Rm(storage.Index(job.Index()))
+			h.db.Rm(job.Index())
 
 			// remove empty ts-key
 			if tm := time.Unix(ts,0); !h.HasJobs(tm, true){
@@ -134,8 +134,8 @@ func (h *tab) PushJobs(override bool, l ...Job) (pushed int){
 		h.loadJob(job)
 
 		h.db.Add(
-			storage.Index(job.Index()),
-			storage.Record(job.Serialize()),
+			job.Index(),
+			job.Serialize(),
 			override)
 
 		pushed++

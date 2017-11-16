@@ -4,8 +4,6 @@ import (
 	"errors"
 	"github.com/mediocregopher/radix.v2/redis"
 	"log"
-	. "storage"
-
 )
 
 type storage struct {
@@ -53,16 +51,17 @@ func (f *storage) isConnected() bool{
 }
 
 
-func (f *storage) Get(index Index) (record Record){
+func (f *storage) Get(index string) (record string){
 
-	if str,err := f.storage.Cmd("HGET", storageKey, index).Str(); err != redis.ErrRespNil{
-		record = Record(str)
-	}
+	record,_ = f.storage.Cmd("HGET", storageKey, index).Str()
+	//if str,err := f.storage.Cmd("HGET", storageKey, index).Str(); err != redis.ErrRespNil{
+	//	record = Record(str)
+	//}
 
 	return record
 }
 
-func (f *storage) Add(index Index, record Record, force bool) (result bool, err error){
+func (f *storage) Add(index string, record string, force bool) (result bool, err error){
 
 	log.Println("[storage.redis]Add: ", index, record, force)
 
@@ -83,7 +82,7 @@ func (f *storage) Add(index Index, record Record, force bool) (result bool, err 
 	return result, err
 }
 
-func (f *storage) Rm(index Index) (result bool, err error){
+func (f *storage) Rm(index string) (result bool, err error){
 
 	log.Println("[storage.redis]Rm: ", index)
 
@@ -98,19 +97,9 @@ func (f *storage) Rm(index Index) (result bool, err error){
 	return result, err
 }
 
-func (f *storage) List() (data map[Index]Record){
+func (f *storage) List() (data map[string]string){
 
-	data = make(map[Index]Record)
-
-	keys, _ := f.storage.Cmd("HGETALL", storageKey).Map()
-
-	log.Println("[storage.redis]List: ", keys)
-
-	if len(keys) >0 {
-		for i, r := range keys{
-			data[Index(i)] = Record(r)
-		}
-	}
+	data, _ = f.storage.Cmd("HGETALL", storageKey).Map()
 
 	return data
 }
