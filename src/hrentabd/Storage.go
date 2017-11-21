@@ -1,4 +1,4 @@
-package storage
+package hrentabd
 
 
 type Storage interface {

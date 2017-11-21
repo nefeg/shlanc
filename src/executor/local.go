@@ -1,4 +1,4 @@
-package Local
+package executor
 
 import (
 	"hrentabd"
@@ -14,7 +14,7 @@ type localExecutor struct {
 }
 
 
-func New() *localExecutor{
+func NewExecutorLocal() *localExecutor{
 
 	return &localExecutor{}
 }

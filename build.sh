@@ -4,7 +4,7 @@ GOPATH=$(pwd)
 
 export GOPATH=$GOPATH
 
-go build -o bin/hrentabd src/hrentabd.go;
+go build -o bin/hrentabd src/*.go;
 
 while test $# -gt 0; do
     case "$1" in

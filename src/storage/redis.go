@@ -1,12 +1,11 @@
-package redis
+package storage
 
 import (
-	"errors"
 	"github.com/mediocregopher/radix.v2/redis"
 	"log"
 )
 
-type storage struct {
+type storageRedis struct {
 
 	network string
 	addr    string
@@ -14,17 +13,16 @@ type storage struct {
 }
 
 var storageKey      = "hrentab"
-var errIndexExist   = errors.New("index already exist")
 
-func NewRedisStorage(network, addr string) *storage{
+func NewStorageRedis(network, addr string) *storageRedis{
 
-	s := &storage{network:network, addr:addr}
+	s := &storageRedis{network:network, addr:addr}
 	s.Connect()
 
 	return s
 }
 
-func (f *storage) Connect() (isConnected bool){
+func (f *storageRedis) Connect() (isConnected bool){
 
 	if !f.isConnected(){
 
@@ -42,16 +40,16 @@ func (f *storage) Connect() (isConnected bool){
 	return isConnected
 }
 
-func (f *storage) Disconnect(){
+func (f *storageRedis) Disconnect(){
 	f.storage.Close()
 }
 
-func (f *storage) isConnected() bool{
+func (f *storageRedis) isConnected() bool{
 	return f.storage != nil
 }
 
 
-func (f *storage) Get(index string) (record string){
+func (f *storageRedis) Get(index string) (record string){
 
 	record,_ = f.storage.Cmd("HGET", storageKey, index).Str()
 	//if str,err := f.storage.Cmd("HGET", storageKey, index).Str(); err != redis.ErrRespNil{
@@ -61,7 +59,7 @@ func (f *storage) Get(index string) (record string){
 	return record
 }
 
-func (f *storage) Add(index string, record string, force bool) (result bool, err error){
+func (f *storageRedis) Add(index string, record string, force bool) (result bool, err error){
 
 	log.Println("[storage.redis]Add: ", index, record, force)
 
@@ -82,7 +80,7 @@ func (f *storage) Add(index string, record string, force bool) (result bool, err
 	return result, err
 }
 
-func (f *storage) Rm(index string) (result bool, err error){
+func (f *storageRedis) Rm(index string) (result bool, err error){
 
 	log.Println("[storage.redis]Rm: ", index)
 
@@ -97,13 +95,13 @@ func (f *storage) Rm(index string) (result bool, err error){
 	return result, err
 }
 
-func (f *storage) List() (data map[string]string){
+func (f *storageRedis) List() (data map[string]string){
 
 	data, _ = f.storage.Cmd("HGETALL", storageKey).Map()
 
 	return data
 }
 
-func (f *storage) Flush(){
+func (f *storageRedis) Flush(){
 	f.storage.Cmd("DEL", storageKey)
 }

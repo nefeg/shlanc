@@ -1,7 +1,6 @@
 package Tab
 
 import (
-	"storage"
 	"time"
 	. "hrentabd"
 	j "hrentabd/Job"
@@ -10,12 +9,12 @@ import (
 
 type tab struct {
 
-	db      storage.Storage
+	db      Storage
 	hTList  TList    // time list
 }
 
 
-func New (s storage.Storage) *tab{
+func New (s Storage) *tab{
 
 	t := &tab{ db:s, hTList:TList{} }
 
@@ -154,6 +153,9 @@ func (h *tab) Flush() {
 	h.db.Flush()
 }
 
+func (h *tab) Close(){
+	h.db.Disconnect()
+}
 
 func (h *tab) loadJob(job Job){
 

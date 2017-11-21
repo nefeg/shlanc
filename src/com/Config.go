@@ -13,8 +13,6 @@ type config struct{
 	commands []Cmd
 }
 
-
-
 func NewConfig(Commands []Cmd) Config{
 	return Config( &config{commands:Commands} )
 }

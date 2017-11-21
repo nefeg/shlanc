@@ -3,40 +3,53 @@ package file
 import (
 	"bytes"
 	"log"
-	. "storage"
 )
+
+type Item interface{
+
+	ToString() (itemString string)
+
+	Index() (index string)
+	Data() (data string)
+}
+
 
 type item struct{
 
-	index   Index
-	data    Record
-}
-
-func NewFileItem(index Index, data Record) *item{
-
-	return &item{index,data}
+	index   string
+	data    string
 }
 
 
-func (fi *item) FromString(itemString string) {
+func NewItem(index string, data string) Item{
+
+	return Item( &item{index,data} )
+}
+
+func NewItemFromString(itemString string) Item{
+
+	fi := &item{}
 
 	if parts := bytes.Split([]byte(itemString), []byte{0}); len(parts) != 2{
 		log.Panicln("[storage.file.item]FromString: Corrupted data")
 
 	}else{
-		fi.index    = Index(parts[0])
-		fi.data     = Record(parts[1])
+		fi.index    = string(parts[0])
+		fi.data     = string(parts[1])
 	}
+
+	return Item(fi)
 }
+
 
 func (fi *item) ToString() (itemString string){
 	return string(fi.index) + string(byte(0)) + string(fi.data) + "\n"
 }
 
-func (fi *item) Index() (index Index){
+func (fi *item) Index() (index string){
 	return fi.index
 }
 
-func (fi *item) Data() (data Record){
+func (fi *item) Data() (data string){
 	return fi.data
 }

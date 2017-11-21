@@ -16,6 +16,8 @@ type Tab interface {
 
 	List() TList
 	Flush()
+
+	Close()
 }
 
 

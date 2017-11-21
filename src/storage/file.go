@@ -1,4 +1,4 @@
-package file
+package storage
 
 import (
 	"os"
@@ -6,22 +6,23 @@ import (
 	"bufio"
 	"io"
 	"errors"
-	. "storage"
+	"storage/file"
 )
 
-type storage struct{
+
+type storageFile struct{
 
 	storagePath string
 	storage     *os.File
-	items       map[Index]*item
+	items       map[string]file.Item
 }
 
 
 var errIndexExist = errors.New("index already exist")
 
-func NewFileStorage(path string) *storage{
+func NewStorageFile(path string) *storageFile{
 
-	storage := &storage{storagePath:path, items:map[Index]*item{}}
+	storage := &storageFile{storagePath:path, items:map[string]file.Item{}}
 	storage.Connect()
 	storage.loadItems()
 
@@ -29,12 +30,12 @@ func NewFileStorage(path string) *storage{
 }
 
 
-func (f *storage) Connect() (isConnected bool){
+func (f *storageFile) Connect() (isConnected bool){
 
 	if !f.isConnected(){
 
-		if file, err := os.OpenFile(f.storagePath, os.O_CREATE|os.O_RDWR|os.O_SYNC, 0644); err == nil{
-			f.storage = file
+		if fh, err := os.OpenFile(f.storagePath, os.O_CREATE|os.O_RDWR|os.O_SYNC, 0644); err == nil{
+			f.storage = fh
 		}else{
 			log.Panicln(err)
 		}
@@ -47,26 +48,26 @@ func (f *storage) Connect() (isConnected bool){
 	return isConnected
 }
 
-func (f *storage) Disconnect(){
+func (f *storageFile) Disconnect(){
 	f.commit()
 	f.storage.Close()
 }
 
-func (f *storage) isConnected() bool{
+func (f *storageFile) isConnected() bool{
 	return int(f.storage.Fd()) > 0
 }
 
-func (f *storage) Get(index Index) (record Record){
+func (f *storageFile) Get(index string) (record string){
 	if item, isset := f.items[index]; isset{
-		record = Record(item.Data())
+		record = item.Data()
 	}
 
 	return record
 }
 
-func (f *storage) Add(index Index, record Record, force bool) (result bool, err error){
+func (f *storageFile) Add(index string, record string, force bool) (result bool, err error){
 
-	fi := NewFileItem(index, record)
+	fi := file.NewItem(index, record)
 
 	if !f.hasIndex( index ) || force{
 
@@ -89,7 +90,7 @@ func (f *storage) Add(index Index, record Record, force bool) (result bool, err 
 	return result, err
 }
 
-func (f *storage) Rm(index Index) (result bool, err error){
+func (f *storageFile) Rm(index string) (result bool, err error){
 
 	if item, isset := f.items[index]; isset{
 
@@ -106,9 +107,9 @@ func (f *storage) Rm(index Index) (result bool, err error){
 	return result, err
 }
 
-func (f *storage) List() (data map[Index]Record){
+func (f *storageFile) List() (data map[string]string){
 
-	data = map[Index]Record{}
+	data = map[string]string{}
 	for i,d := range f.items{
 		data[i] = d.Data()
 	}
@@ -116,7 +117,7 @@ func (f *storage) List() (data map[Index]Record){
 	return data
 }
 
-func (f *storage) Flush() {
+func (f *storageFile) Flush() {
 
 	for _,i := range f.items{
 		f.rmItem(i)
@@ -127,13 +128,13 @@ func (f *storage) Flush() {
 
 
 
-func (f *storage) hasIndex(index Index) bool{
+func (f *storageFile) hasIndex(index string) bool{
 
 	_, isset := f.items[index]
 	return isset
 }
 
-func (f *storage) commit() (size int, err error){
+func (f *storageFile) commit() (size int, err error){
 
 	var dump string
 	for _,item := range f.items{
@@ -153,26 +154,27 @@ func (f *storage) commit() (size int, err error){
 	return size, err
 }
 
-func (f *storage) flush(){}
+func (f *storageFile) flush(){}
 
 
-func (f *storage) addItem(fi *item){
+func (f *storageFile) addItem(fi file.Item){
 	f.items[fi.Index()] = fi
 }
 
-func (f *storage) rmItem(fi *item){
+func (f *storageFile) rmItem(fi file.Item){
 	delete(f.items, fi.Index())
 }
 
 // load items from file
-func (f *storage) loadItems(){
+func (f *storageFile) loadItems(){
 
 	var c = 0
 	rd := bufio.NewReader(io.Reader(f.storage))
 	for{
 		if l,e := rd.ReadString('\n'); e == nil{
-			fi := &item{}
-			fi.FromString(l)
+
+			fi := file.NewItemFromString(l)
+
 
 			if f.hasIndex(fi.Index()){
 				log.Panicln("[storage.file]loadItems: Duplicated index - ", fi.Index())
