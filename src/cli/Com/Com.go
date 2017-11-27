@@ -17,9 +17,9 @@ type Com struct {
 var ErrComUnresolved    = errors.New("")
 var ErrComTooMuchArgs   = errors.New("too much argument")
 
-func New(name, alias string) Com{
+func New(name, alias, desc string) Com{
 
-	return Com{name:name, alias:alias}
+	return Com{name:name, alias:alias, desc:desc}
 }
 
 func (c *Com)Resolve(cmdLine string) (cmd string, args []string, err error){
@@ -59,4 +59,8 @@ func (c *Com)Name() string{
 
 func (c *Com)Alias() string{
 	return c.alias
+}
+
+func (c *Com)Desc() string{
+	return c.desc
 }

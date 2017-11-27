@@ -5,7 +5,10 @@ import (
 	"syscall"
 	"fmt"
 	"os/signal"
+	"errors"
 )
+
+var ErrSigINT = errors.New("SIG_INT")
 
 func SIG_INT(callback func()){
 

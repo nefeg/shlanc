@@ -2,11 +2,11 @@ package client_api
 
 import (
 	"hrentabd"
-	"com"
+	"cli"
 )
 
 type Handler interface {
 
-	Handle(Tab hrentabd.Tab, Conf com.Config)
+	Handle(Tab hrentabd.Tab, Conf cli.CLI)
 }
 

@@ -11,7 +11,7 @@ import (
 
 type app struct{
 
-	//Api Api
+	//Api API
 
 	Tab hrentabd.Tab
 	Exe hrentabd.Executor

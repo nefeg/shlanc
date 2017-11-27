@@ -13,14 +13,16 @@ type Add struct{
 	Com
 }
 
-var MsgUsageComAdd  = "usage: \n\tadd -index <index> -cmd <command to execute> -ttl <ttl> [--force] \n\tadd --help\n"
+const usage_ADD  = "usage: \n" +
+	"\t  add (\\a) -index <index> -cmd <command to execute> -ttl <ttl> [--force] \n" +
+	"\t  add (\\a) --help\n"
 
 func (c *Add)Exec(Tab hrentabd.Tab, args []string)  (response string, err error){
 
 	defer func(response *string, err *error){
 		if r := recover(); r!=nil{
 			*err        = errors.New(fmt.Sprint(r))
-			*response   = MsgUsageComAdd
+			*response   = c.Usage()
 
 			log.Println("[ComAdd]Exec: ", r)
 		}
@@ -29,7 +31,7 @@ func (c *Add)Exec(Tab hrentabd.Tab, args []string)  (response string, err error)
 
 	var INDEX, CMD string
 	var TTL int64
-	var OVERRIDE, HELP, REPEAT bool
+	var OVERRIDE, HELP, HLP, REPEAT bool
 
 	Args := flag.NewFlagSet("com_add", flag.PanicOnError)
 	Args.StringVar(&INDEX, "index", "", "record index(name/id)? unique string")
@@ -38,11 +40,12 @@ func (c *Add)Exec(Tab hrentabd.Tab, args []string)  (response string, err error)
 	Args.BoolVar(&REPEAT, "repeat", false, "repeat job")
 	Args.BoolVar(&OVERRIDE, "force", false, "allow to override existed records")
 	Args.BoolVar(&HELP, "help", false, "show this help")
+	Args.BoolVar(&HLP, "h", false, "show this help")
 	Args.Parse(args)
 
 
-	if HELP || Args.NFlag() <1 || (INDEX=="" || CMD=="" || TTL==0){
-		response = MsgUsageComAdd
+	if HELP || HLP || Args.NFlag() <1 || (INDEX=="" || CMD=="" || TTL==0){
+		response = c.Usage()
 
 	}else{
 
@@ -57,4 +60,8 @@ func (c *Add)Exec(Tab hrentabd.Tab, args []string)  (response string, err error)
 	}
 
 	return response, err
+}
+
+func (c *Add) Usage() string{
+	return c.Desc() + "\n\t" + usage_ADD
 }

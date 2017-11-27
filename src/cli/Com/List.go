@@ -13,28 +13,32 @@ type List struct{
 	Com
 }
 
-var MsgUsageComList = "usage: \n\tlist -index <index> -ts <timestamp> \n\tlist --help\n"
+const usage_LIST = "usage: \n" +
+	"\t  list (\\l) -i <index>\n" +
+	"\t  list (\\l) -ts <timestamp> \n" +
+	"\t  list (\\l) --help\n"
 
-func (c *List)Exec(Tab hrentabd.Tab, args []string)  (response string, err error){
+func (c *List) Exec(Tab hrentabd.Tab, args []string)  (response string, err error){
 
 	defer func(response *string, err *error){
 		if r := recover(); r!=nil{
 			*err        = errors.New(fmt.Sprint(r))
-			*response   = MsgUsageComAdd
+			*response   = c.Usage()
 		}
 
 	}(&response, &err)
 
-	var defaultResponse = "empty"
+	var defaultResponse = "(empty)"
 
 	var INDEX string
 	var TS int64
-	var HELP bool
+	var HELP, HLP bool
 
 	Args := flag.NewFlagSet("com_list", flag.PanicOnError)
 	Args.StringVar(&INDEX, "index", "", "search by index")
 	Args.Int64Var(&TS, "ts", 0, "search by timestamp")
 	Args.BoolVar(&HELP, "help", false, "show this help")
+	Args.BoolVar(&HLP, "h", false, "show this help")
 	Args.Parse(args)
 
 	// Args.PrintDefaults()
@@ -45,8 +49,8 @@ func (c *List)Exec(Tab hrentabd.Tab, args []string)  (response string, err error
 	}
 
 	// show help
-	if HELP{
-		response = MsgUsageComList
+	if HELP || HLP{
+		response = c.Usage()
 
 	//show item by index
 	}else if INDEX != ""{
@@ -62,25 +66,29 @@ func (c *List)Exec(Tab hrentabd.Tab, args []string)  (response string, err error
 
 		if found := Tab.FindByTime(time.Unix(TS,0), false); found != nil{
 
-			response = ""
-			for ts, ah := range Tab.List(){
+			for ind, job := range found{
 
-				response += fmt.Sprintln("==> ", time.Unix(ts,0).String(),"(", ts ,")")
-				for index, h := range ah{
-					response += fmt.Sprintln(index, ":", h.Command(), "(", h.Ttl() ,")")
-				}
+				response += fmt.Sprintln(
+					job.TimeStart().String(), "(", job.TimeStart().Unix() ,")","\t",
+					ind,  "\t",
+					job.Command(), "\t",
+					job.Ttl(),
+				)
 			}
 		}
 
 	// show all jobs
 	}else{
 
-		response = ""
 		for ts, ah := range Tab.List(){
 
-			response += fmt.Sprintln("==> ", time.Unix(ts,0).String(), "(", ts ,")")
 			for index, h := range ah{
-				response += fmt.Sprintln(index, ":", h.Command(), "(", h.Ttl() ,")")
+				response += fmt.Sprintln(
+					time.Unix(ts,0).String(), "(", ts ,")","\t",
+					index,  "\t",
+					h.Command(), "\t",
+					h.Ttl(),
+				)
 			}
 		}
 	}
@@ -92,3 +100,9 @@ func (c *List)Exec(Tab hrentabd.Tab, args []string)  (response string, err error
 
 	return response, nil
 }
+
+func (c *List) Usage() string{
+
+	return c.Desc() + "\n\t" + usage_LIST
+}
+

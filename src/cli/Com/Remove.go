@@ -13,14 +13,18 @@ type Remove struct{
 	Com
 }
 
-var MsgUsageComRemove   = "usage: \n\trm -index <index> \n\trm -ts <timestamp> \n\trm --all \n\trm --help\n"
+const usage_RM = "usage: \n" +
+	"\t  rm (\\r) -index <index> \n" +
+	"\t  rm (\\r) -ts <timestamp> \n" +
+	"\t  rm (\\r) --all \n" +
+	"\t  rm (\\r) --help\n"
 
 func (c *Remove)Exec(Tab hrentabd.Tab, args []string)  (response string, err error){
 
 	defer func(response *string, err *error){
 		if r := recover(); r!=nil{
 			*err        = errors.New(fmt.Sprint(r))
-			*response   = MsgUsageComAdd
+			*response   = c.Usage()
 		}
 
 	}(&response, &err)
@@ -36,10 +40,10 @@ func (c *Remove)Exec(Tab hrentabd.Tab, args []string)  (response string, err err
 	Args.BoolVar(&HELP, "help", false, "show this help")
 	Args.Parse(args)
 
-	response = MsgUsageComRemove
+	response = c.Usage()
 
 	if HELP || Args.NFlag() <1 {
-		response = MsgUsageComRemove
+		response = c.Usage()
 
 	}else if ALL{
 		Tab.Flush()
@@ -65,4 +69,8 @@ func (c *Remove)Exec(Tab hrentabd.Tab, args []string)  (response string, err err
 	}
 
 	return response, err
+}
+
+func (c *Remove) Usage() string{
+	return c.Desc() + "\n\t" + usage_RM
 }
