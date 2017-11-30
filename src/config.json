@@ -1,0 +1,23 @@
+{
+	"storage": {
+		"type": "redis",
+		"options": {
+			"network":  "tcp",
+			"address":  "127.0.0.1:6379",
+			"key-prefix": "hren-"
+		}
+	},
+
+	"client": {
+		"type": "telnet",
+		"options":{
+			"network":  "tcp",
+			"address":  "127.0.0.1:6607"
+		}
+	},
+
+	"executor":{
+		"type": "local",
+		"options":{}
+	}
+}

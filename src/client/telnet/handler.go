@@ -7,25 +7,26 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"cli"
+	ComLineIf "cli"
 	"cli/Com"
 )
 
 type handler struct {
 
 	addr    net.Addr
+	cli     ComLineIf.CLI
 }
 
 const WlcMessage = "HrenTab terminal connected OK"
 
 
-func NewHandler(listen net.Addr) *handler{
+func NewHandler(listen net.Addr, cli ComLineIf.CLI) *handler{
 
-	return &handler{addr:listen}
+	return &handler{ addr:listen, cli:cli }
 }
 
 
-func (h *handler) Handle(Tab hrentabd.Tab, Cli cli.CLI){
+func (h *handler) Handle(Tab hrentabd.Tab){
 
 	IPC, err := net.Listen(h.addr.Network(), h.addr.String())
 	if err != nil {
@@ -41,7 +42,7 @@ func (h *handler) Handle(Tab hrentabd.Tab, Cli cli.CLI){
 	for{
 		if Connection, err := IPC.Accept(); err == nil {
 
-			h.handleConnection(Connection, Tab, Cli)
+			h.handleConnection(Connection, Tab)
 			Connection.Close()
 
 		}else{
@@ -51,7 +52,7 @@ func (h *handler) Handle(Tab hrentabd.Tab, Cli cli.CLI){
 	}
 }
 
-func (h *handler)handleConnection(Connection net.Conn, Tab hrentabd.Tab, Cli cli.CLI){
+func (h *handler)handleConnection(Connection net.Conn, Tab hrentabd.Tab){
 
 	var response string
 
@@ -62,7 +63,7 @@ func (h *handler)handleConnection(Connection net.Conn, Tab hrentabd.Tab, Cli cli
 			if r == io.EOF {
 				*response = "client socket closed."
 				writeData(Connection, "\n"+(*response)+"\n")
-				log.Println("\nSession closed by cause: " + (*response))
+				log.Println("Session closed by cause: " + (*response))
 
 			}else{
 
@@ -71,7 +72,7 @@ func (h *handler)handleConnection(Connection net.Conn, Tab hrentabd.Tab, Cli cli
 			}
 		}else{
 			writeData(Connection, "\n" + (*response) + "\n")
-			log.Println("\nSession closed by cause: " + (*response))
+			log.Println("Session closed by cause: " + (*response))
 		}
 	}(&response)
 
@@ -89,7 +90,7 @@ func (h *handler)handleConnection(Connection net.Conn, Tab hrentabd.Tab, Cli cli
 			}else{
 
 				response = "Unknown command"
-				if Command, args, err := Cli.Resolve(rcv); Command != nil{
+				if Command, args, err := h.cli.Resolve(rcv); Command != nil{
 
 					response, err = Command.Exec(Tab, args)
 
@@ -102,7 +103,7 @@ func (h *handler)handleConnection(Connection net.Conn, Tab hrentabd.Tab, Cli cli
 						}
 					}
 				}else{
-					response += "\n" + Cli.Help()
+					response += "\n" + h.cli.Help()
 				}
 			}
 

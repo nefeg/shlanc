@@ -3,9 +3,9 @@ package sig
 import (
 	"os"
 	"syscall"
-	"fmt"
 	"os/signal"
 	"errors"
+	"log"
 )
 
 var ErrSigINT = errors.New("SIG_INT")
@@ -20,7 +20,7 @@ func SIG_INT(callback func()){
 
 		<-sig
 
-		fmt.Println("\nReceived termination signal")
+		log.Println("Received termination signal:", ErrSigINT)
 
 		callback()
 

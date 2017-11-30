@@ -9,14 +9,13 @@ type storageRedis struct {
 
 	network string
 	addr    string
+	prefix  string
 	storage *redis.Client
 }
 
-var storageKey      = "hrentab"
+func NewStorageRedis(network, addr, prefix string) *storageRedis{
 
-func NewStorageRedis(network, addr string) *storageRedis{
-
-	s := &storageRedis{network:network, addr:addr}
+	s := &storageRedis{network:network, addr:addr, prefix:prefix}
 	s.Connect()
 
 	return s
@@ -51,7 +50,7 @@ func (f *storageRedis) isConnected() bool{
 
 func (f *storageRedis) Get(index string) (record string){
 
-	record,_ = f.storage.Cmd("HGET", storageKey, index).Str()
+	record,_ = f.storage.Cmd("HGET", f.prefix, index).Str()
 	//if str,err := f.storage.Cmd("HGET", storageKey, index).Str(); err != redis.ErrRespNil{
 	//	record = Record(str)
 	//}
@@ -66,7 +65,7 @@ func (f *storageRedis) Add(index string, record string, force bool) (result bool
 	if f.Get(index) == "" || force{
 
 		var resp int
-		resp, err = f.storage.Cmd("HSET", storageKey, index, record).Int()
+		resp, err = f.storage.Cmd("HSET", f.prefix, index, record).Int()
 
 		result = resp > 0
 
@@ -84,7 +83,7 @@ func (f *storageRedis) Rm(index string) (result bool, err error){
 
 	log.Println("[storage.redis]Rm: ", index)
 
-	if r, err := f.storage.Cmd("HDEL", storageKey, index).Int(); err == nil {
+	if r, err := f.storage.Cmd("HDEL", f.prefix, index).Int(); err == nil {
 
 		result = r>0
 	}
@@ -97,11 +96,11 @@ func (f *storageRedis) Rm(index string) (result bool, err error){
 
 func (f *storageRedis) List() (data map[string]string){
 
-	data, _ = f.storage.Cmd("HGETALL", storageKey).Map()
+	data, _ = f.storage.Cmd("HGETALL", f.prefix).Map()
 
 	return data
 }
 
 func (f *storageRedis) Flush(){
-	f.storage.Cmd("DEL", storageKey)
+	f.storage.Cmd("DEL", f.prefix)
 }
