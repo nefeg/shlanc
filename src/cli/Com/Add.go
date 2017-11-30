@@ -8,6 +8,7 @@ import (
 	"errors"
 	"log"
 	"time"
+	"github.com/satori/go.uuid"
 )
 
 type Add struct{
@@ -15,9 +16,9 @@ type Add struct{
 }
 
 const usage_ADD  = "usage: \n" +
-	"\t  add (\\a) -index <index> -cmd <command to execute> -ttl <ttl> [--force] [--repeat] \n" +
-	"\t  add (\\a) -index <index> -cmd <command to execute> -ts <timestamp> [--force] [--repeat] \n" +
-	"\t  add (\\a) -index <index> -cmd <command to execute> -tm <2006-01-02T15:04:05Z07:00> [--force] [--repeat] \n" +
+	"\t  add (\\a) [-index <index>] -cmd <command to execute> -ttl <ttl> [--force] [--repeat] \n" +
+	"\t  add (\\a) [-index <index>] -cmd <command to execute> -ts <timestamp> [--force] \n" +
+	"\t  add (\\a) [-index <index>] -cmd <command to execute> -tm <2006-01-02T15:04:05Z07:00> [--force] \n" +
 	"\t  add (\\a) --help\n"
 
 func (c *Add)Exec(Tab hrentabd.Tab, args []string)  (response string, err error){
@@ -49,10 +50,14 @@ func (c *Add)Exec(Tab hrentabd.Tab, args []string)  (response string, err error)
 	Args.Parse(args)
 
 
-	if HELP || HLP || Args.NFlag() <1 || (INDEX=="" || CMD=="" || (TTL==0 && TS==0)){
+	if HELP || HLP || Args.NFlag() <1 || (CMD=="" || (TTL==0 && TS==0)){
 		response = c.Usage()
 
 	}else{
+
+		if INDEX==""{
+			INDEX = uuid.NewV4().String()
+		}
 
 		hr := Job.New(INDEX)
 		hr.SetCommand(CMD)
