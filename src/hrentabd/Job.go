@@ -7,12 +7,17 @@ type Job interface {
 	Index()             string
 	Command()           string
 	TimeStart()         time.Time
-	IsRepeatable()      bool
 
 	SetTtl(ttl int64)
 	SetCommand(command string)
 	SetTimeStart(t time.Time)
-	SetRepeatable(repeat bool)
+
+	// repeatable
+	IsPeriodic() bool
+	SetPeriod(period int64)
+	GetPeriod()(period int64)
+	NextPeriod()
+
 
 	Serialize() string
 	UnSerialize(data string) Job

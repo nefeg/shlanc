@@ -14,7 +14,7 @@ type List struct{
 }
 
 const usage_LIST = "usage: \n" +
-	"\t  list (\\l) -i <index>\n" +
+	"\t  list (\\l) -index <index>\n" +
 	"\t  list (\\l) -ts <timestamp> \n" +
 	"\t  list (\\l) --help\n"
 
@@ -56,8 +56,7 @@ func (c *List) Exec(Tab hrentabd.Tab, args []string)  (response string, err erro
 	}else if INDEX != ""{
 
 		if found := Tab.FindByIndex(INDEX); found != nil{
-			response = fmt.Sprintln("==> ", found.TimeStart().String(), "(", found.TimeStart().Unix() ,")")
-			response += fmt.Sprintln(INDEX, ":", found.Command(), "(", found.Ttl() ,")")
+			response = c.view(found)
 		}
 
 
@@ -65,30 +64,17 @@ func (c *List) Exec(Tab hrentabd.Tab, args []string)  (response string, err erro
 	}else if TS != 0{
 
 		if found := Tab.FindByTime(time.Unix(TS,0), false); found != nil{
-
-			for ind, job := range found{
-
-				response += fmt.Sprintln(
-					job.TimeStart().String(), "(", job.TimeStart().Unix() ,")","\t",
-					ind,  "\t",
-					job.Command(), "\t",
-					job.Ttl(),
-				)
+			for _, job := range found{
+				response += c.view(job)
 			}
 		}
 
 	// show all jobs
 	}else{
 
-		for ts, ah := range Tab.List(){
-
-			for index, h := range ah{
-				response += fmt.Sprintln(
-					time.Unix(ts,0).String(), "(", ts ,")","\t",
-					index,  "\t",
-					h.Command(), "\t",
-					h.Ttl(),
-				)
+		for _, jobsGroup := range Tab.List(){
+			for _, job := range jobsGroup{
+				response += c.view(job)
 			}
 		}
 	}
@@ -104,5 +90,23 @@ func (c *List) Exec(Tab hrentabd.Tab, args []string)  (response string, err erro
 func (c *List) Usage() string{
 
 	return c.Desc() + "\n\t" + usage_LIST
+}
+
+func (c *List) view(job hrentabd.Job) string{
+
+	var period string
+	if job.IsPeriodic(){
+		period = fmt.Sprint(job.GetPeriod())
+	}else{
+		period = "null"
+	}
+
+	return fmt.Sprintln(
+		job.TimeStart().String(),"\t",
+		job.Index(),"\t",
+		period,"\t",
+		"\""+job.Command()+"\"", "\t",
+		job.Ttl(),"\t",
+	)
 }
 

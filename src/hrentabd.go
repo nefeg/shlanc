@@ -16,6 +16,7 @@ import (
 type app struct{
 
 	//Api API
+	Conf Config
 
 	Tab hrentabd.Tab
 	Exe hrentabd.Executor
@@ -50,7 +51,7 @@ func (app *app) Run(){
 	}()
 
 
-	go app.runHrend(false)
+	go app.runHrend(false) // todo remove old jobs
 
 	app.Client.Handle(app.Tab)
 }
@@ -77,25 +78,25 @@ func (app *app) runHrend(strict bool){
 					arr = append(arr, v)
 				}
 
+				app.Exe.OnItemStart(func(job hrentabd.Job, err error, out []byte){
+					log.Println("Job started:", job.Index())
+				})
 
 				app.Exe.OnItemComplete(func(job hrentabd.Job, err error, out []byte){
-
-					fmt.Println("Complete: ", job.Index())
-
-					fmt.Println("==================================================================")
-					fmt.Print(string(out))
-					fmt.Println("==================================================================")
+					log.Println("Job complete:", job.Index())
 
 					// remove executed job if no --repeat flag
-					if job.IsRepeatable(){
-						job.SetTimeStart(time.Unix(job.TimeStart().Unix() + job.Ttl(),0))
+					if job.IsPeriodic(){
+						job.NextPeriod()
+
+						app.Tab.PushJobs(true, job)
 
 					}else{
 						app.Tab.RmByIndex(job.Index())
 					}
 				})
 
-				app.Exe.Exec(false, arr...)
+				app.Exe.Exec(arr...)
 
 			}(found)
 		}

@@ -5,13 +5,14 @@ import (
 	"time"
 	"encoding/json"
 	"log"
+	"math"
 )
 
 type job struct {
 	Ind     string
 	Com     string
 	Stm     time.Time
-	Rep     bool
+	Rep     int64
 }
 
 func New(index string) hrentabd.Job{
@@ -51,12 +52,30 @@ func (j *job)SetTimeStart(t time.Time){
 }
 
 // Repeatable
-func (j *job)IsRepeatable() bool{
+func (j *job)IsPeriodic() bool{
+	return j.Rep >0
+}
+
+func (j *job)SetPeriod(period int64){
+	j.Rep = period
+}
+
+func (j *job)GetPeriod()(period int64){
 	return j.Rep
 }
 
-func (j *job)SetRepeatable(repeat bool){
-	j.Rep = repeat
+func (j *job)NextPeriod(){
+
+	// current time > time start
+	if j.IsPeriodic(){
+		if diff := time.Now().Unix() - j.TimeStart().Unix(); diff>j.GetPeriod(){
+			shiftTime := int64(math.Ceil(float64(diff) / float64(j.GetPeriod()))) * j.GetPeriod()
+			j.SetTimeStart( time.Unix(j.TimeStart().Unix() + shiftTime, 0) )
+		}else{
+
+			j.SetTimeStart( time.Unix(j.TimeStart().Unix() + j.GetPeriod(), 0) )
+		}
+	}
 }
 
 
