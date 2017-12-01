@@ -80,11 +80,6 @@ func (app *app) runHrend(strict bool){
 
 				app.Exe.OnItemStart(func(job hrentabd.Job, err error, out []byte){
 					log.Println("Job started:", job.Index())
-				})
-
-				app.Exe.OnItemComplete(func(job hrentabd.Job, err error, out []byte){
-					log.Println("Job complete:", job.Index())
-
 					// remove executed job if no --repeat flag
 					if job.IsPeriodic(){
 						job.NextPeriod()
@@ -94,6 +89,10 @@ func (app *app) runHrend(strict bool){
 					}else{
 						app.Tab.RmByIndex(job.Index())
 					}
+				})
+
+				app.Exe.OnItemComplete(func(job hrentabd.Job, err error, out []byte){
+					log.Println("Job complete:", job.Index())
 				})
 
 				app.Exe.Exec(arr...)

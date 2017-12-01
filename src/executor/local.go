@@ -3,9 +3,14 @@ package executor
 import (
 	"hrentabd"
 	"os/exec"
+	"sync"
 )
 
 type localExecutor struct {
+
+	silent  bool
+	async   bool
+
 	onStart         []func(jobs []hrentabd.Job, err error)
 	onComplete      []func(jobs []hrentabd.Job, err error)
 
@@ -14,14 +19,14 @@ type localExecutor struct {
 }
 
 
-func NewExecutorLocal() *localExecutor{
+func NewExecutorLocal(silent, async bool) *localExecutor{
 
-	return &localExecutor{}
+	return &localExecutor{ silent:silent, async:async }
 }
 
 
 // execute list of jobs
-func (a *localExecutor)Exec(silent bool, jobs ...hrentabd.Job) (outs [][]byte, errs []error){
+func (a *localExecutor)Exec(jobs ...hrentabd.Job) (outs [][]byte, errs []error){
 
 	var err error
 	var out []byte
@@ -31,14 +36,29 @@ func (a *localExecutor)Exec(silent bool, jobs ...hrentabd.Job) (outs [][]byte, e
 		f(jobs, err)
 	}
 
-	for _,job := range jobs{
 
-		out, err = a.ExecItem(silent, job)
+	wg := &sync.WaitGroup{}
+	run := func(job hrentabd.Job, wg *sync.WaitGroup){
+		wg.Add(1)
 
+		out, err = a.ExecItem(job, wg)
 		errs    = append(errs, err)
 		outs    = append(outs, out)
+
+		wg.Done()
 	}
 
+	for _,job := range jobs{
+
+		if a.async{
+			go run(job,wg)
+		}else{
+			run(job,wg)
+		}
+	}
+
+
+	wg.Wait()
 
 	// on complete
 	for _,f := range a.onComplete {
@@ -49,7 +69,7 @@ func (a *localExecutor)Exec(silent bool, jobs ...hrentabd.Job) (outs [][]byte, e
 }
 
 
-func (a *localExecutor)ExecItem(silent bool, job hrentabd.Job) (out []byte, err error){
+func (a *localExecutor)ExecItem(job hrentabd.Job, wg *sync.WaitGroup) (out []byte, err error){
 
 	// on item start
 	for _,f := range a.onItemStart {
@@ -57,7 +77,7 @@ func (a *localExecutor)ExecItem(silent bool, job hrentabd.Job) (out []byte, err 
 	}
 
 	// RUN COMMAND
-	if cmd := exec.Command("sh",  "-c", job.Command()); !silent {
+	if cmd := exec.Command("sh",  "-c", job.Command()); !a.silent {
 		out,err = cmd.Output()
 	}
 

@@ -12,7 +12,7 @@ type Config struct {
 	Options struct {
 		Network string `json:"network"`
 		Address string `json:"address"`
-		Prefix  string `json:"key-prefix"`
+		Key     string `json:"key"`
 		Path    string `json:"path"`
 	} `json:"options"`
 }
@@ -21,7 +21,7 @@ func Resolve(conf Config) (storage hrentabd.Storage){
 
 	switch conf.Type {
 	case "redis":
-		storage = NewStorageRedis(conf.Options.Network, conf.Options.Address, conf.Options.Prefix)
+		storage = NewStorageRedis(conf.Options.Network, conf.Options.Address, conf.Options.Key)
 
 	case "file":
 		storage = NewStorageFile(conf.Options.Path)
