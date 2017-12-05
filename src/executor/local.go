@@ -14,7 +14,7 @@ type localExecutor struct {
 	onStart         []func(jobs []hrentabd.Job, err error)
 	onComplete      []func(jobs []hrentabd.Job, err error)
 
-	onItemStart     []func(job hrentabd.Job, err error, out []byte)
+	onItemStart     []func(job hrentabd.Job, err error, out []byte) bool // if skip on false
 	onItemComplete  []func(job hrentabd.Job, err error, out []byte)
 }
 
@@ -73,7 +73,9 @@ func (a *localExecutor)ExecItem(job hrentabd.Job, wg *sync.WaitGroup) (out []byt
 
 	// on item start
 	for _,f := range a.onItemStart {
-		f(job, err, out)
+		if !f(job, err, out){
+			return out, err
+		}
 	}
 
 	// RUN COMMAND
@@ -93,5 +95,5 @@ func (a *localExecutor)ExecItem(job hrentabd.Job, wg *sync.WaitGroup) (out []byt
 func (a *localExecutor)OnStart(f ...func(jobs []hrentabd.Job, err error)){ a.onStart = f }
 func (a *localExecutor)OnComplete(f ...func(jobs []hrentabd.Job, err error)){ a.onComplete = f }
 
-func (a *localExecutor)OnItemStart(f ...func(job hrentabd.Job, err error, out []byte)){ a.onItemStart = f }
+func (a *localExecutor)OnItemStart(f ...func(job hrentabd.Job, err error, out []byte) bool){ a.onItemStart = f }
 func (a *localExecutor)OnItemComplete(f ...func(job hrentabd.Job, err error, out []byte)){ a.onItemComplete = f }

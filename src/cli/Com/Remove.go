@@ -51,12 +51,13 @@ func (c *Remove)Exec(Tab hrentabd.Tab, args []string)  (response string, err err
 
 	}else if INDEX != ""{
 
-		if !Tab.HasJob(INDEX){
+		if job := Tab.FindByIndex(INDEX); job != nil {
+			Tab.PullJob(job)
+			response = "OK"
+
+		}else{
 			log.Panicln("index not found")
 		}
-
-		Tab.RmByIndex(INDEX)
-		response = "OK"
 
 	}else if TS != 0 {
 

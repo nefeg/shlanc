@@ -1,4 +1,4 @@
-package storage
+package file
 
 import (
 	"os"
@@ -6,7 +6,7 @@ import (
 	"bufio"
 	"io"
 	"errors"
-	"storage/file"
+	"github.com/satori/go.uuid"
 )
 
 
@@ -14,15 +14,19 @@ type storageFile struct{
 
 	storagePath string
 	storage     *os.File
-	items       map[string]file.Item
+	items       map[string]Item
+	version     string
 }
 
 
 var errIndexExist = errors.New("index already exist")
 
-func NewStorageFile(path string) *storageFile{
+func New(path string) *storageFile{
 
-	storage := &storageFile{storagePath:path, items:map[string]file.Item{}}
+	storage := &storageFile{
+		storagePath:path,
+		items:map[string]Item{},
+	}
 	storage.Connect()
 	storage.loadItems()
 
@@ -41,9 +45,16 @@ func (f *storageFile) Connect() (isConnected bool){
 		}
 	}
 
+	var version string
+	if version = f.Version(); version == "" {version = f.incVersion()}
+
 	isConnected = f.isConnected()
 
 	log.Println("[storage.file]Connect: ", f.isConnected())
+	log.Println("[storage.file]Path: ", f.storagePath)
+	log.Println("[storage.file]Version: ", version)
+
+
 
 	return isConnected
 }
@@ -57,17 +68,11 @@ func (f *storageFile) isConnected() bool{
 	return int(f.storage.Fd()) > 0
 }
 
-func (f *storageFile) Get(index string) (record string){
-	if item, isset := f.items[index]; isset{
-		record = item.Data()
-	}
 
-	return record
-}
 
-func (f *storageFile) Add(index string, record string, force bool) (result bool, err error){
+func (f *storageFile) Push(index string, record string, force bool) (result bool, err error){
 
-	fi := file.NewItem(index, record)
+	fi := NewItem(index, record)
 
 	if !f.hasIndex( index ) || force{
 
@@ -85,23 +90,6 @@ func (f *storageFile) Add(index string, record string, force bool) (result bool,
 
 	if err == nil{
 		f.addItem(fi)
-	}
-
-	return result, err
-}
-
-func (f *storageFile) Rm(index string) (result bool, err error){
-
-	if item, isset := f.items[index]; isset{
-
-		f.rmItem(item)
-
-		if _,err = f.commit(); err != nil{ // rollback
-			f.addItem(item)
-		}else{
-			result = true
-		}
-
 	}
 
 	return result, err
@@ -128,6 +116,55 @@ func (f *storageFile) Flush() {
 
 
 
+func (f *storageFile) Pull(index string) (record string){
+
+	record = f.get(index)
+
+	f.rm(index)
+
+	return record
+}
+
+
+func (f *storageFile) Version() (version string){
+	return f.version
+}
+
+func (f *storageFile) incVersion() (version string){
+
+	version = uuid.NewV4().String()
+
+	return version
+}
+
+
+func (f *storageFile) get(index string) (record string){
+	if item, isset := f.items[index]; isset{
+		record = item.Data()
+	}
+
+	return record
+}
+
+func (f *storageFile) rm(index string) (result bool, err error){
+
+	if item, isset := f.items[index]; isset{
+
+		f.rmItem(item)
+
+		if _,err = f.commit(); err != nil{ // rollback
+			f.addItem(item)
+		}else{
+			result = true
+		}
+
+	}
+
+	return result, err
+}
+
+
+
 func (f *storageFile) hasIndex(index string) bool{
 
 	_, isset := f.items[index]
@@ -149,19 +186,23 @@ func (f *storageFile) commit() (size int, err error){
 		size, err = f.storage.WriteString( dump )
 	}
 
+
+	oldVersion := f.Version()
+	newVersion := f.incVersion()
+
+	log.Println("[storage.redis]Version: ", "update:", oldVersion,"-->",newVersion)
+
 	// log.Println("[storage.file]commit: ", size, err, dump, ofs)
 
 	return size, err
 }
 
-func (f *storageFile) flush(){}
 
-
-func (f *storageFile) addItem(fi file.Item){
+func (f *storageFile) addItem(fi Item){
 	f.items[fi.Index()] = fi
 }
 
-func (f *storageFile) rmItem(fi file.Item){
+func (f *storageFile) rmItem(fi Item){
 	delete(f.items, fi.Index())
 }
 
@@ -173,7 +214,7 @@ func (f *storageFile) loadItems(){
 	for{
 		if l,e := rd.ReadString('\n'); e == nil{
 
-			fi := file.NewItemFromString(l)
+			fi := NewItemFromString(l)
 
 
 			if f.hasIndex(fi.Index()){

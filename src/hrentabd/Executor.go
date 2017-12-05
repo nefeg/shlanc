@@ -8,6 +8,6 @@ type Executor interface {
 	OnStart(f ...func(jobs []Job, err error))
 	OnComplete(f ...func(jobs []Job, err error))
 
-	OnItemStart(f ...func(job Job, err error, out []byte))
+	OnItemStart(f ...func(job Job, err error, out []byte) bool )
 	OnItemComplete(f ...func(job Job, err error, out []byte))
 }

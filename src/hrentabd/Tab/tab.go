@@ -11,6 +11,7 @@ type tab struct {
 
 	db      Storage
 	hTList  TList    // time list
+	version string
 }
 
 
@@ -18,9 +19,7 @@ func New (s Storage) *tab{
 
 	t := &tab{ db:s, hTList:TList{} }
 
-	for index,data := range s.List(){
-		t.loadJob(j.New(string(index)).UnSerialize(string(data)))
-	}
+	t.load()
 
 	return t
 }
@@ -50,43 +49,6 @@ func (h *tab) FindByTime(t time.Time, strict bool) IList {
 
 	return list
 }
-
-
-func (h *tab) RmByIndex(index string) bool{
-
-	for ts,jobs := range h.List(){
-		if job, isset := jobs[index]; isset{
-
-			delete(h.hTList[ts], index)
-
-			h.db.Rm(job.Index())
-
-			// remove empty ts-key
-			if tm := time.Unix(ts,0); !h.HasJobs(tm, true){
-				delete(h.hTList, ts)
-			}
-
-			return true
-		}
-	}
-
-	return false
-}
-
-func (h *tab) RmByTime(t time.Time, strict bool) bool{
-
-	if list := h.FindByTime(t, strict); len(list)>0{
-
-		for i := range list{
-			h.RmByIndex(i)
-		}
-
-		return true
-	}
-
-	return false
-}
-
 
 // check jobs by time start
 func (h *tab) HasJobs(t time.Time, strict bool) bool {
@@ -124,7 +86,7 @@ func (h *tab) PushJobs(override bool, l ...Job) (pushed int){
 
 		if h.HasJob(job.Index()){
 			if override{
-				h.RmByIndex(job.Index())
+				h.PullJob(job)
 			}else{
 				log.Panicln("Job index already exist")
 			}
@@ -132,7 +94,7 @@ func (h *tab) PushJobs(override bool, l ...Job) (pushed int){
 
 		h.loadJob(job)
 
-		h.db.Add(
+		h.db.Push(
 			job.Index(),
 			job.Serialize(),
 			override)
@@ -143,7 +105,24 @@ func (h *tab) PushJobs(override bool, l ...Job) (pushed int){
 	return pushed
 }
 
+func (h *tab) PullJob(job Job) bool{
+
+	if jobString := h.db.Pull(job.Index()); jobString != ""{
+		job.UnSerialize(jobString)
+		h.rmByIndex(job.Index())
+		return true
+	}
+
+	return false
+}
+
+
+
+
 func (h *tab) List() TList {
+
+	h.sync()
+
 	return h.hTList
 }
 
@@ -157,6 +136,28 @@ func (h *tab) Close(){
 	h.db.Disconnect()
 }
 
+
+
+func (h *tab) sync(){
+
+	if h.version != h.db.Version(){
+		log.Printf("sync: %v --> %v\n", h.version, h.db.Version())
+		h.load()
+	}
+}
+
+func (h *tab) load() (loaded int){
+
+	h.version   = h.db.Version()
+	h.hTList    = TList{}
+	for index,data := range h.db.List(){
+		h.loadJob(j.New(string(index)).UnSerialize(string(data)))
+		loaded++
+	}
+
+	return loaded
+}
+
 func (h *tab) loadJob(job Job){
 
 	currentTs := job.TimeStart().Unix()
@@ -165,6 +166,41 @@ func (h *tab) loadJob(job Job){
 	}
 
 	h.hTList[currentTs][job.Index()] = job
+}
+
+
+// remove jobs from local index (not from storage)
+func (h *tab) rmByIndex(index string) bool{
+
+	for ts,jobs := range h.List(){
+		if _, isset := jobs[index]; isset{
+
+			delete(h.hTList[ts], index)
+
+			// remove empty ts-key
+			if tm := time.Unix(ts,0); !h.HasJobs(tm, true){
+				delete(h.hTList, ts)
+			}
+
+			return true
+		}
+	}
+
+	return false
+}
+
+func (h *tab) rmByTime(t time.Time, strict bool) bool{
+
+	if list := h.FindByTime(t, strict); len(list)>0{
+
+		for i := range list{
+			h.rmByIndex(i)
+		}
+
+		return true
+	}
+
+	return false
 }
 
 func mergeIndexList(m ...IList) IList{

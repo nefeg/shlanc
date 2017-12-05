@@ -3,6 +3,8 @@ package storage
 import (
 	"log"
 	"hrentabd"
+	"storage/redis"
+	"storage/file"
 )
 
 // storage config
@@ -21,10 +23,10 @@ func Resolve(conf Config) (storage hrentabd.Storage){
 
 	switch conf.Type {
 	case "redis":
-		storage = NewStorageRedis(conf.Options.Network, conf.Options.Address, conf.Options.Key)
+		storage = redis.New(conf.Options.Network, conf.Options.Address, conf.Options.Key)
 
 	case "file":
-		storage = NewStorageFile(conf.Options.Path)
+		storage = file.New(conf.Options.Path)
 
 	case "script":
 		// todo implement this

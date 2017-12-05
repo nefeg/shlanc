@@ -73,35 +73,30 @@ func (app *app) runHrend(strict bool){
 
 			go func(list hrentabd.IList){
 
-				arr := []hrentabd.Job{}
-				for _,v := range list{
-					arr = append(arr, v)
-				}
+				for _, job := range list{
 
-				app.Exe.OnItemStart(func(job hrentabd.Job, err error, out []byte){
-					log.Println("Job started:", job.Index())
-					// remove executed job if no --repeat flag
-					if job.IsPeriodic(){
-						job.NextPeriod()
-
-						app.Tab.PushJobs(true, job)
+					log.Println("Pulling job:", job.Index())
+					if !app.Tab.PullJob(job){
+						log.Println("Pulling job: skip (Can't pull job)", job.Index())
 
 					}else{
-						app.Tab.RmByIndex(job.Index())
+
+						log.Println("Job started:", job.Index())
+						app.Exe.Exec(job)
+
+
+						if job.IsPeriodic(){
+							job.NextPeriod()
+
+							app.Tab.PushJobs(false, job)
+						}
 					}
-				})
-
-				app.Exe.OnItemComplete(func(job hrentabd.Job, err error, out []byte){
-					log.Println("Job complete:", job.Index())
-				})
-
-				app.Exe.Exec(arr...)
+				}
 
 			}(found)
 		}
 
 		time.Sleep(1 * time.Second)
-		//print(".")
 	}
 }
 
