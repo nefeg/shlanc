@@ -42,8 +42,10 @@ func (h *handler) Handle(Tab hrentabd.Tab){
 	for{
 		if Connection, err := IPC.Accept(); err == nil {
 
-			h.handleConnection(Connection, Tab)
-			Connection.Close()
+			go func(){
+				h.handleConnection(Connection, Tab)
+				Connection.Close()
+			}()
 
 		}else{
 			log.Println(err.Error())
