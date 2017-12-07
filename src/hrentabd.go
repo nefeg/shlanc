@@ -51,7 +51,7 @@ func (app *app) Run(){
 	}()
 
 
-	go app.runHrend(false) // todo remove old jobs
+	go app.runHrend(app.Conf.RunMissed) // todo remove old jobs
 
 	app.Client.Handle(app.Tab)
 }

@@ -1,4 +1,6 @@
 {
+	"runMissed": true,
+
 	"storage": {
 		"type": "redis",
 		"options": {
