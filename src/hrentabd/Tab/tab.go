@@ -74,10 +74,11 @@ func (h *tab) PushJobs(override bool, l ...Job) (pushed int){
 
 	defer func(pushed *int){
 
-		log.Printf("[tab]PushJobs: %d jobs pushed", *pushed)
+		log.Printf("[Tab]PushJobs: %d jobs pushed", *pushed)
 
 		if r := recover(); r!=nil{
-			log.Panicln("[tab]PushJobs: ", r)
+			log.Printf("[Tab]PushJobs (panic): %v", r)
+			panic(r)
 		}
 
 	}(&pushed)
@@ -88,7 +89,7 @@ func (h *tab) PushJobs(override bool, l ...Job) (pushed int){
 			if override{
 				h.PullJob(job)
 			}else{
-				log.Panicln("Job index already exist")
+				panic("Job index already exist")
 			}
 		}
 

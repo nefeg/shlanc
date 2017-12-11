@@ -28,7 +28,7 @@ func (c *cli) Resolve(commandLine string) (cmd Cmd, args []string, err error){
 
 		if cmdName, args, err := Com.Resolve(commandLine); err == nil{
 
-			log.Println("Resolved: ", cmdName)
+			log.Println("[CLI] Resolved: ", cmdName)
 
 			return Com, args, err
 		}

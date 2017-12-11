@@ -6,7 +6,6 @@ import (
 	"flag"
 	"hrentabd/Job"
 	"errors"
-	"log"
 	"time"
 	"github.com/satori/go.uuid"
 )
@@ -27,10 +26,8 @@ func (c *Add)Exec(Tab hrentabd.Tab, args []string)  (response string, err error)
 
 	defer func(response *string, err *error){
 		if r := recover(); r!=nil{
-			*err        = errors.New(fmt.Sprint(r))
+			*err        = errors.New("ERR: " + fmt.Sprint(r))
 			*response   = c.Usage()
-
-			log.Println("[ComAdd]Exec: ", r)
 		}
 
 	}(&response, &err)

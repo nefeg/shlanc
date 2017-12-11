@@ -17,6 +17,7 @@ type handler struct {
 }
 
 const WlcMessage = "HrenTab terminal connected OK"
+const logPrefix = "[client.telnet] "
 
 
 func NewHandler(listen net.Addr, cli ComLineIf.CLI) *handler{
@@ -42,12 +43,12 @@ func (h *handler) Handle(Tab hrentabd.Tab){
 		if Connection, err := IPC.Accept(); err == nil {
 
 			go func(){
-				log.Printf("New client connection accepted [connid:%v]", Connection)
+				log.Printf(logPrefix + "New client connection accepted [connid:%v]", Connection)
 
 				h.handleConnection(Connection, Tab)
 				Connection.Close()
 
-				log.Printf("Client connection closed [connid:%v]", Connection)
+				log.Printf(logPrefix + "Client connection closed [connid:%v]", Connection)
 			}()
 
 		}else{
@@ -68,14 +69,14 @@ func (h *handler)handleConnection(Connection net.Conn, Tab hrentabd.Tab){
 			if r == io.EOF {
 				*response = "client socket closed."
 				writeData(Connection, "\n"+(*response)+"\n")
-				log.Println("Session closed by cause: " + (*response))
+				log.Println(logPrefix + "Session closed by cause: " + (*response))
 
 			}else{
-				log.Println("Session closed by cause: " , r)
+				log.Println(logPrefix + "Session closed by cause: " , r)
 			}
 		}else{
 			writeData(Connection, "\n" + (*response) + "\n")
-			log.Println("Session closed by cause: " + (*response))
+			log.Println(logPrefix + "Session closed by cause: " + (*response))
 		}
 	}(&response)
 

@@ -75,13 +75,13 @@ func (app *app) runHrend(strict bool){
 
 				for _, job := range list{
 
-					log.Println("Pulling job:", job.Index())
+					log.Println("[SYSTEM] Pulling job:", job.Index())
 					if !app.Tab.PullJob(job){
-						log.Println("Pulling job: skip (Can't pull job)", job.Index())
+						log.Println("[SYSTEM] Pulling job: skip (Can't pull job)", job.Index())
 
 					}else{
 
-						log.Println("Job started:", job.Index())
+						log.Println("[SYSTEM] Job started:", job.Index())
 						app.Exe.Exec(job)
 
 
