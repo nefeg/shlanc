@@ -4,7 +4,6 @@ import (
 	"hrentabd"
 	"net"
 	"io"
-	"fmt"
 	"log"
 	"os"
 	ComLineIf "cli"
@@ -43,8 +42,12 @@ func (h *handler) Handle(Tab hrentabd.Tab){
 		if Connection, err := IPC.Accept(); err == nil {
 
 			go func(){
+				log.Printf("New client connection accepted [connid:%v]", Connection)
+
 				h.handleConnection(Connection, Tab)
 				Connection.Close()
+
+				log.Printf("Client connection closed [connid:%v]", Connection)
 			}()
 
 		}else{
@@ -68,9 +71,7 @@ func (h *handler)handleConnection(Connection net.Conn, Tab hrentabd.Tab){
 				log.Println("Session closed by cause: " + (*response))
 
 			}else{
-
-				writeData(Connection, "\n" + fmt.Sprint(r) + "\n")
-				panic(r)
+				log.Println("Session closed by cause: " , r)
 			}
 		}else{
 			writeData(Connection, "\n" + (*response) + "\n")
@@ -109,7 +110,7 @@ func (h *handler)handleConnection(Connection net.Conn, Tab hrentabd.Tab){
 				}
 			}
 
-			writeData(Connection,                                                                                                                                                                                                                                                                                                                                                                                                                                                                       response+ "\n>>")
+			writeData(Connection, response+ "\n>>")
 			//writeData(Connection, "==> " + response + "\n>>")
 		}
 	}
