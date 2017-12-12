@@ -20,7 +20,7 @@ type Config struct {
 func Resolve(conf Config) (client Handler){
 
 	switch conf.Type {
-	case "telnet":
+	case "socket":
 		client = Handler( telnet.NewHandler( telnet.NewConnectionConf(conf.Options.Network, conf.Options.Address),  cli.New() ))
 
 	default:
