@@ -3,6 +3,7 @@ package telnet
 import (
 	"net"
 	"strings"
+	"log"
 )
 
 func readData(Connection net.Conn) (rcv string, err error){
@@ -24,5 +25,9 @@ func readData(Connection net.Conn) (rcv string, err error){
 
 func writeData(Connection net.Conn, data string) (int, error){
 
-	return Connection.Write([]byte(data))
+	response := append([]byte(data), []byte{00, 10, 62, 62}...)
+
+	log.Println("[SYS]writeData:", response)
+
+	return Connection.Write(response)
 }

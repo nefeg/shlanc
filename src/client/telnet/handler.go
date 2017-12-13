@@ -81,8 +81,7 @@ func (h *handler)handleConnection(Connection net.Conn, Tab hrentabd.Tab){
 	}(&response)
 
 
-	//writeData(Connection, WlcMessage + "\n")
-	writeData(Connection, WlcMessage + "\n>>")
+	writeData(Connection, WlcMessage)
 	for{
 
 		if rcv, err := readData(Connection); rcv != ""{
@@ -111,8 +110,7 @@ func (h *handler)handleConnection(Connection net.Conn, Tab hrentabd.Tab){
 				}
 			}
 
-			writeData(Connection, response+ "\n>>")
-			//writeData(Connection, "==> " + response + "\n>>")
+			writeData(Connection, response)
 		}
 	}
 }
