@@ -24,7 +24,7 @@ func Resolve(conf Config) (client Handler){
 		client = Handler( telnet.NewHandler( telnet.NewConnectionConf(conf.Options.Network, conf.Options.Address),  cli.New() ))
 
 	default:
-		log.Panicln("Unknown client type")
+		log.Fatalln("[client.config]Resolve(panic): Unknown client type: ", conf.Type)
 	}
 
 	return client
