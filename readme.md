@@ -39,7 +39,7 @@ Configuring
 	},
 
 	"client": {
-		"type": "telnet",
+		"type": "socket",
 		"options":{
 			"network":  "tcp",
 			"address":  "127.0.0.1:6607"
