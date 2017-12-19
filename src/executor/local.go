@@ -81,6 +81,12 @@ func (a *localExecutor)ExecItem(job hrentabd.Job, wg *sync.WaitGroup) (out []byt
 	// RUN COMMAND
 	if cmd := exec.Command("sh",  "-c", job.Command()); !a.silent {
 		out,err = cmd.Output()
+	}else{
+		if a.async{
+			cmd.Start()
+		}else{
+			cmd.Run()
+		}
 	}
 
 	// on item complete
