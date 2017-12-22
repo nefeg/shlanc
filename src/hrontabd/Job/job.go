@@ -55,10 +55,8 @@ func (j *job)SetCommand(command string) {
 
 func (j *job)SetCronLine(timeLine string){
 
-	if c, e := cronexpr.Parse(timeLine); e != nil{
-		log.Println(e)
-	}else {
-		log.Println(c)
+	if _, e := cronexpr.Parse(timeLine); e != nil{
+		log.Panicln("Invalid format for '-cron'")
 	}
 
 	j.Cln = timeLine
@@ -67,7 +65,6 @@ func (j *job)SetCronLine(timeLine string){
 func (j *job)SetComment(comment string){
 	j.Com = comment
 }
-
 
 
 
