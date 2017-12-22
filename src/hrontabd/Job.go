@@ -7,7 +7,7 @@ type Job interface {
 	Command()           string
 	CronLine()          string
 	Comment()           string
-	TimeStart()         time.Time
+	TimeStart(fromTime time.Time) time.Time
 
 	SetCommand(command string)
 	SetCronLine(timeLine string)

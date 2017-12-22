@@ -35,9 +35,9 @@ func (j *job)Comment() string{
 	return j.Com
 }
 
-func (j *job)TimeStart() time.Time{
+func (j *job)TimeStart(fromTime time.Time) time.Time{
 
-	return cronexpr.MustParse(j.Cln).Next(time.Now())
+	return cronexpr.MustParse(j.Cln).Next(fromTime)
 }
 
 
