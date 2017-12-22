@@ -3,8 +3,9 @@
 GOPATH=$(pwd)
 
 export GOPATH=$GOPATH
+export GOBIN=$GOPATH/bin
 
-go build -o bin/hrentabd src/*.go;
+go build -o $GOBIN/shlac src/*.go; # SHlack Like As Cron
 
 while test $# -gt 0; do
     case "$1" in
@@ -13,7 +14,7 @@ while test $# -gt 0; do
             exit 0
             ;;
         -r|--run)
-            bin/hrentabd
+            `$GOBIN/shlac src/config.json`
             ;;
     esac
 done

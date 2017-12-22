@@ -1,4 +1,4 @@
-package telnet
+package socket
 
 import (
 	"net"

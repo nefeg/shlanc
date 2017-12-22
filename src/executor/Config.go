@@ -2,7 +2,7 @@ package executor
 
 import (
 	"log"
-	"hrentabd"
+	"hrontabd"
 )
 
 // executor config
@@ -17,7 +17,7 @@ type Config struct {
 }
 
 
-func Resolve(conf Config) (exe hrentabd.Executor){
+func Resolve(conf Config) (exe hrontabd.Executor){
 
 	switch conf.Type {
 	case "local":

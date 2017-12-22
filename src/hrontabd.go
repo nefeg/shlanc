@@ -5,8 +5,8 @@ import (
 	"os"
 	"time"
 	"fmt"
-	"hrentabd/Tab"
-	"hrentabd"
+	"hrontabd/Tab"
+	"hrontabd"
 	"executor"
 	"storage"
 	"client"
@@ -18,8 +18,8 @@ type app struct{
 	//Api API
 	Conf Config
 
-	Tab hrentabd.Tab
-	Exe hrentabd.Executor
+	Tab hrontabd.TimeTable
+	Exe hrontabd.Executor
 
 	Client client.Handler
 }
@@ -28,7 +28,7 @@ type app struct{
 func CreateApp(AppConfig Config) *app {
 
 	application := &app{}
-	application.Tab     = hrentabd.Tab( Tab.New( storage.Resolve(AppConfig.Storage) ))
+	application.Tab     = hrontabd.TimeTable( Tab.New( storage.Resolve(AppConfig.Storage) ))
 	application.Exe     = executor.Resolve(AppConfig.Executor)
 	application.Client  = client.Resolve(AppConfig.Client)
 
@@ -50,7 +50,6 @@ func (app *app) Run(){
 		app.Stop(code, message)
 	}()
 
-
 	go app.runHrend(app.Conf.RunMissed) // todo remove old jobs
 
 	app.Client.Handle(app.Tab)
@@ -68,35 +67,29 @@ func (app *app) Stop(code int, message interface{}){
 func (app *app) runHrend(strict bool){
 
 	for{
-		currentTime := time.Now()
-		if found := app.Tab.FindByTime(currentTime, strict); len(found)>0{
+		if found := app.Tab.ListJobs(); len(found)>0{
 
-			go func(list hrentabd.IList){
+			go func(jobs []hrontabd.Job){
 
-				for _, job := range list{
+				for _, job := range jobs{
 
-					log.Println("Pulling job:", job.Index())
-					if !app.Tab.PullJob(job){
-						log.Println("Pulling job: skip (Can't pull job)", job.Index())
+					log.Println("Pulling job:", job.Id())
+					if j := app.Tab.PullJob(job.Id()); j != nil{
+
+						log.Println("Job started:", j.Id())
+						//app.Exe.Exec(job)
+						//app.Tab.PushJob(job)
 
 					}else{
+						log.Println("Pulling job: skip (Can't pull job)", job.Id())
 
-						log.Println("Job started:", job.Index())
-						app.Exe.Exec(job)
-
-
-						if job.IsPeriodic(){
-							job.NextPeriod()
-
-							app.Tab.PushJobs(false, job)
-						}
 					}
 				}
 
 			}(found)
 		}
 
-		time.Sleep(1 * time.Second)
+		time.Sleep(1 * time.Minute)
 	}
 }
 

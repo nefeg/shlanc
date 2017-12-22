@@ -1,12 +1,11 @@
 package Com
 
 import (
-	"hrentabd"
+	"hrontabd"
 	"fmt"
 	"flag"
 	"errors"
 	"log"
-	"time"
 )
 
 type Remove struct{
@@ -14,12 +13,11 @@ type Remove struct{
 }
 
 const usage_RM = "usage: \n" +
-	"\t  rm (\\r) -index <index> \n" +
-	"\t  rm (\\r) -ts <timestamp> \n" +
+	"\t  rm (\\r) -id <index> \n" +
 	"\t  rm (\\r) --all \n" +
 	"\t  rm (\\r) --help\n"
 
-func (c *Remove)Exec(Tab hrentabd.Tab, args []string)  (response string, err error){
+func (c *Remove)Exec(Tab hrontabd.TimeTable, args []string)  (response string, err error){
 
 	defer func(response *string, err *error){
 		if r := recover(); r!=nil{
@@ -29,13 +27,11 @@ func (c *Remove)Exec(Tab hrentabd.Tab, args []string)  (response string, err err
 
 	}(&response, &err)
 
-	var INDEX string
-	var TS int64
+	var ID string
 	var ALL, HELP bool
 
 	Args := flag.NewFlagSet("com_remove", flag.PanicOnError)
-	Args.StringVar(&INDEX, "index", "", "remove record by index")
-	Args.Int64Var(&TS, "ts", 0, "remove records by timestamp")
+	Args.StringVar(&ID, "id", "", "remove record by id")
 	Args.BoolVar(&ALL, "all", false, "remove all records")
 	Args.BoolVar(&HELP, "help", false, "show this help")
 	Args.Parse(args)
@@ -49,24 +45,19 @@ func (c *Remove)Exec(Tab hrentabd.Tab, args []string)  (response string, err err
 		Tab.Flush()
 		response = "OK"
 
-	}else if INDEX != ""{
+	}else if ID != ""{
 
-		if job := Tab.FindByIndex(INDEX); job != nil {
-			Tab.PullJob(job)
+		if Tab.RmJob(ID) {
 			response = "OK"
 
 		}else{
-			log.Panicln("index not found")
+			if Tab.FindJob(ID) == nil{
+				response = "job not found"
+			}else{
+				response = "can`t remove job (unknown error)"
+				log.Println("[com.remove] Exec:", response)
+			}
 		}
-
-	}else if TS != 0 {
-
-		t := time.Unix(TS,0)
-		if !Tab.HasJobs(t, true){
-			log.Panicf("no jobs found for '%s' \n", t.String())
-		}
-
-		response = "OK"
 	}
 
 	return response, err

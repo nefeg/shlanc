@@ -2,9 +2,8 @@ package storage
 
 import (
 	"log"
-	"hrentabd"
+	"hrontabd"
 	"storage/redis"
-	"storage/file"
 )
 
 // storage config
@@ -19,14 +18,14 @@ type Config struct {
 	} `json:"options"`
 }
 
-func Resolve(conf Config) (storage hrentabd.Storage){
+func Resolve(conf Config) (storage hrontabd.Storage){
 
 	switch conf.Type {
 	case "redis":
 		storage = redis.New(conf.Options.Network, conf.Options.Address, conf.Options.Key)
 
 	case "file":
-		storage = file.New(conf.Options.Path)
+		// todo implement this
 
 	case "script":
 		// todo implement this

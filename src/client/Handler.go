@@ -1,11 +1,11 @@
 package client
 
 import (
-	"hrentabd"
+	"hrontabd"
 )
 
 type Handler interface {
 
-	Handle(Tab hrentabd.Tab)
+	Handle(Tab hrontabd.TimeTable)
 }
 

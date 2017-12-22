@@ -1,13 +1,12 @@
 package Com
 
 import (
-	"hrentabd"
+	"hrontabd"
 	"fmt"
 	"flag"
-	"hrentabd/Job"
+	"hrontabd/Job"
 	"errors"
 	"log"
-	"time"
 	"github.com/satori/go.uuid"
 )
 
@@ -15,15 +14,12 @@ type Add struct{
 	Com
 }
 
-const usage_ADD  = "usage: \n" +
-	"\t  add (\\a) [-index <index>] [--force] [--repeat <seconds>] -cmd <command to execute> -ttl <ttl> \n" +
-	"\t  add (\\a) [-index <index>] [--force] [--repeat <seconds>] -cmd <command to execute> -ts <timestamp> \n" +
-	"\t  add (\\a) [-index <index>] [--force] [--repeat <seconds>] -cmd <command to execute> -tm <2006-01-02T15:04:05Z07:00> \n" +
-	"\t  add (\\a) --help\n"
+const usage_ADD  =
+	"\\a -cron <cron-line> -cmd <command> [-id <id>] [-comment <comment>] [--force]\n" +
+	"\t\\a --help\n"
 
-const dateFormat = "2006-01-02 15:04:05 -0700 MST"
 
-func (c *Add)Exec(Tab hrentabd.Tab, args []string)  (response string, err error){
+func (c *Add)Exec(Tab hrontabd.TimeTable, args []string)  (response string, err error){
 
 	defer func(response *string, err *error){
 		if r := recover(); r!=nil{
@@ -35,24 +31,21 @@ func (c *Add)Exec(Tab hrentabd.Tab, args []string)  (response string, err error)
 
 	}(&response, &err)
 
-	var INDEX, CMD, TM string
-	var TTL, TS, REPEAT int64
+	var INDEX, CMD, COMMENT, CLINE string
 	var OVERRIDE, HELP, HLP bool
 
 	Args := flag.NewFlagSet("com_add", flag.PanicOnError)
-	Args.StringVar(&INDEX,      "index",    "",     "record index(name/id)? unique string")
-	Args.StringVar(&CMD,        "cmd",      "",     "command line for execute")
-	Args.StringVar(&TM,         "tm",       "",     "time (format: "+dateFormat+") to start and removing")
-	Args.Int64Var(&TTL,         "ttl",      0,      "time (seconds) to start (and removing record if -repeat=false)")
-	Args.Int64Var(&TS,          "ts",       0,      "timestamp (seconds) at start and removing record")
-	Args.Int64Var(&REPEAT,      "repeat",   0,      "repeat period")
+	Args.StringVar(&INDEX,      "id",       "",     "record index(name/id)? unique string")
+	Args.StringVar(&CLINE,      "cron",     "",     "cron-formatted time line")
+	Args.StringVar(&CMD,        "cmd",      "",     "command")
+	Args.StringVar(&COMMENT,    "comment",  "",     "comment")
 	Args.BoolVar(&OVERRIDE,     "force",    false,  "allow to override existed records")
 	Args.BoolVar(&HELP,         "help",     false,  "show this help")
 	Args.BoolVar(&HLP,          "h",        false,  "show this help")
 	Args.Parse(args)
 
 
-	if HELP || HLP || Args.NFlag() <1 || (CMD=="" || (TTL==0 && TS==0 && TM=="")){
+	if HELP || HLP || CMD=="" || CLINE == ""{
 		response = c.Usage()
 
 	}else{
@@ -61,30 +54,21 @@ func (c *Add)Exec(Tab hrentabd.Tab, args []string)  (response string, err error)
 			INDEX = uuid.NewV4().String()
 		}
 
-		hr := Job.New(INDEX)
-		hr.SetCommand(CMD)
-		hr.SetPeriod(REPEAT)
+		log.Println(COMMENT)
 
-		if TTL>0 {
-			hr.SetTtl(TTL)
+		job := Job.New()
+		job.SetID(INDEX)
+		job.SetCronLine(CLINE)
+		job.SetCommand(CMD)
+		job.SetComment(COMMENT)
 
-		}else if TS>0 {
-			hr.SetTimeStart(time.Unix(TS,0))
+		log.Println(job)
 
-		}else if TM!=""{
-			if t, err := time.Parse(dateFormat, TM); err ==nil{
-				hr.SetTimeStart(t)
-
-			}else {
-				response = err.Error()
-			}
-		}
-
-
-		Tab.PushJobs(OVERRIDE, hr)
+		Tab.AddJob(job, OVERRIDE)
 
 		response = "OK"
 	}
+
 
 	return response, err
 }

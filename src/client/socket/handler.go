@@ -1,7 +1,7 @@
-package telnet
+package socket
 
 import (
-	"hrentabd"
+	"hrontabd"
 	"net"
 	"io"
 	"fmt"
@@ -17,7 +17,8 @@ type handler struct {
 	cli     ComLineIf.CLI
 }
 
-const WlcMessage = "HrenTab terminal connected OK"
+const WlcMessage = "ShLAC terminal connected OK\n" +
+	"type \"help\" or \"\\h\" for show available commands"
 
 
 func NewHandler(listen net.Addr, cli ComLineIf.CLI) *handler{
@@ -26,12 +27,14 @@ func NewHandler(listen net.Addr, cli ComLineIf.CLI) *handler{
 }
 
 
-func (h *handler) Handle(Tab hrentabd.Tab){
+func (h *handler) Handle(Tab hrontabd.TimeTable){
 
 	IPC, err := net.Listen(h.addr.Network(), h.addr.String())
 	if err != nil {
 		log.Panicf("%s: %s", "ERROR", err.Error())
 	}
+	log.Println("[cient.socket] Listen:", IPC.Addr().String())
+
 	defer func(){
 		IPC.Close()
 		if UAddr, err := net.ResolveUnixAddr(h.addr.Network(), h.addr.String()); err == nil{
@@ -54,7 +57,7 @@ func (h *handler) Handle(Tab hrentabd.Tab){
 	}
 }
 
-func (h *handler)handleConnection(Connection net.Conn, Tab hrentabd.Tab){
+func (h *handler)handleConnection(Connection net.Conn, Tab hrontabd.TimeTable){
 
 	var response string
 
@@ -79,7 +82,6 @@ func (h *handler)handleConnection(Connection net.Conn, Tab hrentabd.Tab){
 	}(&response)
 
 
-	//writeData(Connection, WlcMessage + "\n")
 	writeData(Connection, WlcMessage + "\n>>")
 	for{
 
@@ -91,8 +93,11 @@ func (h *handler)handleConnection(Connection net.Conn, Tab hrentabd.Tab){
 
 			}else{
 
-				response = "Unknown command"
-				if Command, args, err := h.cli.Resolve(rcv); Command != nil{
+
+				if rcv == "help" || rcv == "\\h"{
+					response = h.cli.Help()
+
+				}else if Command, args, err := h.cli.Resolve(rcv); Command != nil{
 
 					response, err = Command.Exec(Tab, args)
 
@@ -105,12 +110,12 @@ func (h *handler)handleConnection(Connection net.Conn, Tab hrentabd.Tab){
 						}
 					}
 				}else{
+					response = "Unknown command"
 					response += "\n" + h.cli.Help()
 				}
 			}
 
 			writeData(Connection,                                                                                                                                                                                                                                                                                                                                                                                                                                                                       response+ "\n>>")
-			//writeData(Connection, "==> " + response + "\n>>")
 		}
 	}
 }
