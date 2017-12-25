@@ -8,9 +8,6 @@ import (
 
 type Config struct {
 
-	// run missed jobs on start
-	RunMissed   bool
-
 	// storage config
 	Storage  storage.Config `json:"storage"`
 

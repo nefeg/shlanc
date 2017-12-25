@@ -18,7 +18,7 @@ type table struct {
 func New (s Storage) *table{
 
 	t := &table{ db:s }
-	// t.load()
+	t.load()
 
 	return t
 }
@@ -27,7 +27,7 @@ func New (s Storage) *table{
 
 func (t *table) FindJob(jobId string) (job Job){
 
-	// t.sync()
+	t.sync()
 	for _, j := range t.jobs{
 		log.Println(j.Id(),jobId)
 		if j.Id() == jobId { return j }
@@ -38,17 +38,10 @@ func (t *table) FindJob(jobId string) (job Job){
 
 func (t *table) RmJob(jobId string) bool{
 
-	for i := range t.jobs{
-		if t.jobs[i].Id() == jobId{
-			t.jobs = append(t.jobs[:i], t.jobs[i+1:]...)
-			return true
-		}
-	}
+	r := t.db.Rm(jobId)
+	t.sync()
 
-	//r := t.db.Rm(jobId)
-	//t.sync()
-
-	return false
+	return r
 }
 
 func (t *table) AddJob(job Job, force bool){
@@ -69,27 +62,33 @@ func (t *table) AddJob(job Job, force bool){
 		panic("job already exist")
 	}
 
+	if !t.db.Lock(job.Id()){
+		panic("can't get lock")
+	}
 
-	t.jobs = append(t.jobs, job)
+	defer t.db.UnLock(job.Id())
+
+	t.db.Add(job.Id(), job.Serialize(), force)
+
+	t.sync()
+	//t.jobs = append(t.jobs, job)
+
 }
 
 func (t *table) PullJob(jobId string) (job Job){
 
 	log.Println("[hrentab.table] PullJob: Trying to lock job...")
-	//if t.db.Lock(jobId){
-	//
-	//	log.Printf("[hrentab.table] PullJob: Job #%s locked\n", jobId)
-	//	if jobData := t.db.Get(jobId); jobData != ""{
-	//		job = J.New().UnSerialize(string(jobData))
-	//	}
-	//}else{
-	//	log.Printf("[hrentab.table] PullJob: Locking for job#%s fail\n", jobId)
-	//}
+	if t.db.Lock(jobId){
 
-	for _,j := range t.jobs{
-		if j.Id() == jobId{
-			job = j
+		log.Printf("[hrentab.table] PullJob: Job #%s locked\n", jobId)
+		job = t.FindJob(jobId)
+		if job == nil{
+			t.db.UnLock(jobId)
+			log.Printf("[hrentab.table] PullJob: Job '%s' not found\n", jobId)
 		}
+
+	}else{
+		log.Printf("[hrentab.table] PullJob: Locking for job#%s fail\n", jobId)
 	}
 
 	return job
@@ -98,6 +97,8 @@ func (t *table) PullJob(jobId string) (job Job){
 func (t *table) PushJob(job Job)  {
 
 	t.db.UnLock(job.Id())
+	log.Printf("[hrentab.table] PushJob: Release lock for job#%s fail\n", job.Id())
+
 }
 
 func (t *table) ListJobs() []Job{
@@ -133,6 +134,8 @@ func (t *table) isSynced() bool{
 
 func (t *table) load(){
 
+	t.jobs    = nil
+	t.version = t.db.Version()
 	for _, jobData := range t.db.List() {
 		t.jobs = append(t.jobs, J.New().UnSerialize(string(jobData)) )
 	}

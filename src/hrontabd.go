@@ -50,7 +50,7 @@ func (app *app) Run(){
 		app.Stop(code, message)
 	}()
 
-	go app.runHrend(app.Conf.RunMissed) // todo remove old jobs
+	go app.runHrend() // todo remove old jobs
 
 	app.Client.Handle(app.Tab)
 }
@@ -64,7 +64,7 @@ func (app *app) Stop(code int, message interface{}){
 	os.Exit(code)
 }
 
-func (app *app) runHrend(strict bool){
+func (app *app) runHrend(){
 
 	for{
 		var timeout time.Duration = 60
@@ -77,11 +77,11 @@ func (app *app) runHrend(strict bool){
 
 					JTS := job.TimeStart( time.Now().Add(-time.Duration(timeout)*time.Second) )
 
-					log.Println("-------------", job.CronLine())
-					log.Println("Job", job.Id(), "now", time.Now().String())
-					log.Println("Job", job.Id(), "jts",JTS.String())
-					log.Println("Job", job.Id(), "since", time.Since(JTS))
-					log.Println("-------------")
+					//log.Println("-------------", job.CronLine())
+					//log.Println("Job", job.Id(), "now", time.Now().String())
+					//log.Println("Job", job.Id(), "jts",JTS.String())
+					//log.Println("Job", job.Id(), "since", time.Since(JTS))
+					//log.Println("-------------")
 
 					timeInterval := time.Since(JTS).Seconds()
 					if timeInterval >0{
@@ -109,10 +109,3 @@ func (app *app) runHrend(strict bool){
 		time.Sleep(time.Duration(timeout) * time.Second)
 	}
 }
-
-// \a -cron "*/7 0 31 12 *" -cmd "ls"
-// \a -cron "0 14 29 2 *" -cmd "ls"
-// \a -cron "@hourly" -cmd "ls"
-// \a -cron "* * * * *" -cmd "ls"
-// \a -cron "*/5 * * * *" -cmd "ls"
-
