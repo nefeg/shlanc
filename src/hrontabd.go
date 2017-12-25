@@ -77,9 +77,11 @@ func (app *app) runHrend(strict bool){
 
 					JTS := job.TimeStart( time.Now().Add(-time.Duration(timeout)*time.Second) )
 
-					log.Println(job.Id(), "now", time.Now().String())
-					log.Println(job.Id(), "jts",JTS.String())
-					log.Println(job.Id(), "since", time.Since(JTS))
+					log.Println("-------------", job.CronLine())
+					log.Println("Job", job.Id(), "now", time.Now().String())
+					log.Println("Job", job.Id(), "jts",JTS.String())
+					log.Println("Job", job.Id(), "since", time.Since(JTS))
+					log.Println("-------------")
 
 					timeInterval := time.Since(JTS).Seconds()
 					if timeInterval >0{
@@ -87,7 +89,7 @@ func (app *app) runHrend(strict bool){
 						if j := app.Tab.PullJob(job.Id()); j != nil{
 
 							log.Println("Job started:", j.Id())
-							//app.Exe.Exec(job)
+							app.Exe.Exec(job)
 							app.Tab.PushJob(job)
 
 						}else{
