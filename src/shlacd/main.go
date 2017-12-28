@@ -7,6 +7,8 @@ import (
 	"os"
 	"io/ioutil"
 	"encoding/json"
+	. "config"
+
 )
 
 var App Application

@@ -5,7 +5,7 @@ GOPATH=$(pwd)
 export GOPATH=$GOPATH
 export GOBIN=$GOPATH/bin
 
-go build -o $GOBIN/shlac src/*.go; # SHlack Like As Cron
+go install shlac shlacd; # SHlack Like As Cron
 
 while test $# -gt 0; do
     case "$1" in
@@ -13,8 +13,10 @@ while test $# -gt 0; do
             echo "HELP!"
             exit 0
             ;;
+
         -r|--run)
-            `$GOBIN/shlac src/config.json`
+            `$GOBIN/shlacd $GOPATH/config.json`
             ;;
     esac
 done
+echo "\n"

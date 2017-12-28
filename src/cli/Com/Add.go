@@ -15,7 +15,7 @@ type Add struct{
 }
 
 const usage_ADD  =
-	"\\a -cron <cron-line> -cmd <command> [-id <id>] [-comment <comment>] [--force]\n" +
+	"\\a -cron <cron-line> -cmd <command> [-id <id>] [--force]\n" +
 	"\t\\a --help\n"
 
 
@@ -31,14 +31,13 @@ func (c *Add)Exec(Tab hrontabd.TimeTable, args []string)  (response string, err 
 
 	}(&response, &err)
 
-	var INDEX, CMD, COMMENT, CLINE string
+	var INDEX, CMD, CLINE string
 	var OVERRIDE, HELP, HLP bool
 
 	Args := flag.NewFlagSet("com_add", flag.PanicOnError)
 	Args.StringVar(&INDEX,      "id",       "",     "record index(name/id)? unique string")
 	Args.StringVar(&CLINE,      "cron",     "",     "cron-formatted time line")
 	Args.StringVar(&CMD,        "cmd",      "",     "command")
-	Args.StringVar(&COMMENT,    "comment",  "",     "comment")
 	Args.BoolVar(&OVERRIDE,     "force",    false,  "allow to override existed records")
 	Args.BoolVar(&HELP,         "help",     false,  "show this help")
 	Args.BoolVar(&HLP,          "h",        false,  "show this help")
@@ -54,13 +53,10 @@ func (c *Add)Exec(Tab hrontabd.TimeTable, args []string)  (response string, err 
 			INDEX = uuid.NewV4().String()
 		}
 
-		log.Println(COMMENT)
-
 		job := Job.New()
 		job.SetID(INDEX)
 		job.SetCronLine(CLINE)
 		job.SetCommand(CMD)
-		job.SetComment(COMMENT)
 
 		log.Println(job)
 

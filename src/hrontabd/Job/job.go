@@ -12,7 +12,6 @@ type job struct {
 	ID      string
 	Cln     string // cron-line
 	Cmd     string // command
-	Com     string // comment
 }
 
 func New() *job{
@@ -29,10 +28,6 @@ func (j *job)Command() string{
 
 func (j *job)CronLine() string{
 	return j.Cln
-}
-
-func (j *job)Comment() string{
-	return j.Com
 }
 
 func (j *job)TimeStart(fromTime time.Time) time.Time{
@@ -60,10 +55,6 @@ func (j *job)SetCronLine(timeLine string){
 	}
 
 	j.Cln = timeLine
-}
-
-func (j *job)SetComment(comment string){
-	j.Com = comment
 }
 
 

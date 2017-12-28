@@ -29,7 +29,6 @@ func (t *table) FindJob(jobId string) (job Job){
 
 	t.sync()
 	for _, j := range t.jobs{
-		log.Println(j.Id(),jobId)
 		if j.Id() == jobId { return j }
 	}
 
@@ -97,7 +96,7 @@ func (t *table) PullJob(jobId string) (job Job){
 func (t *table) PushJob(job Job)  {
 
 	t.db.UnLock(job.Id())
-	log.Printf("[hrentab.table] PushJob: Release lock for job#%s fail\n", job.Id())
+	log.Printf("[hrentab.table] PushJob: Release lock for job#%s\n", job.Id())
 
 }
 

@@ -4,7 +4,6 @@ import (
 	"hrontabd"
 	"net"
 	"io"
-	"fmt"
 	"log"
 	"os"
 	ComLineIf "cli"
@@ -19,6 +18,7 @@ type handler struct {
 
 const WlcMessage = "ShLAC terminal connected OK\n" +
 	"type \"help\" or \"\\h\" for show available commands"
+const logPrefix = "[client.telnet] "
 
 
 func NewHandler(listen net.Addr, cli ComLineIf.CLI) *handler{
@@ -33,8 +33,6 @@ func (h *handler) Handle(Tab hrontabd.TimeTable){
 	if err != nil {
 		log.Panicf("%s: %s", "ERROR", err.Error())
 	}
-	log.Println("[cient.socket] Listen:", IPC.Addr().String())
-
 	defer func(){
 		IPC.Close()
 		if UAddr, err := net.ResolveUnixAddr(h.addr.Network(), h.addr.String()); err == nil{
@@ -46,8 +44,12 @@ func (h *handler) Handle(Tab hrontabd.TimeTable){
 		if Connection, err := IPC.Accept(); err == nil {
 
 			go func(){
+				log.Printf(logPrefix + "New client connection accepted [connid:%v]", Connection)
+
 				h.handleConnection(Connection, Tab)
 				Connection.Close()
+
+				log.Printf(logPrefix + "Client connection closed [connid:%v]", Connection)
 			}()
 
 		}else{
@@ -68,21 +70,19 @@ func (h *handler)handleConnection(Connection net.Conn, Tab hrontabd.TimeTable){
 			if r == io.EOF {
 				*response = "client socket closed."
 				writeData(Connection, "\n"+(*response)+"\n")
-				log.Println("Session closed by cause: " + (*response))
+				log.Println(logPrefix + "Session closed by cause: " + (*response))
 
 			}else{
-
-				writeData(Connection, "\n" + fmt.Sprint(r) + "\n")
-				panic(r)
+				log.Println(logPrefix + "Session closed by cause: " , r)
 			}
 		}else{
 			writeData(Connection, "\n" + (*response) + "\n")
-			log.Println("Session closed by cause: " + (*response))
+			log.Println(logPrefix + "Session closed by cause: " + (*response))
 		}
 	}(&response)
 
 
-	writeData(Connection, WlcMessage + "\n>>")
+	writeData(Connection, WlcMessage)
 	for{
 
 		if rcv, err := readData(Connection); rcv != ""{
@@ -93,11 +93,8 @@ func (h *handler)handleConnection(Connection net.Conn, Tab hrontabd.TimeTable){
 
 			}else{
 
-
-				if rcv == "help" || rcv == "\\h"{
-					response = h.cli.Help()
-
-				}else if Command, args, err := h.cli.Resolve(rcv); Command != nil{
+				response = "Unknown command"
+				if Command, args, err := h.cli.Resolve(rcv); Command != nil{
 
 					response, err = Command.Exec(Tab, args)
 
@@ -110,12 +107,11 @@ func (h *handler)handleConnection(Connection net.Conn, Tab hrontabd.TimeTable){
 						}
 					}
 				}else{
-					response = "Unknown command"
 					response += "\n" + h.cli.Help()
 				}
 			}
 
-			writeData(Connection,                                                                                                                                                                                                                                                                                                                                                                                                                                                                       response+ "\n>>")
+			writeData(Connection, response)
 		}
 	}
 }

@@ -10,6 +10,7 @@ import (
 	"executor"
 	"storage"
 	"client"
+	. "config"
 )
 
 
@@ -85,15 +86,15 @@ func (app *app) runHrend(){
 
 					timeInterval := time.Since(JTS).Seconds()
 					if timeInterval >0{
-						log.Println("Pulling job:", job.Id())
+						log.Println("[hrontabd] Pulling job:", job.Id())
 						if j := app.Tab.PullJob(job.Id()); j != nil{
 
-							log.Println("Job started:", j.Id())
+							log.Println("[hrontabd] Job started:", j.Id())
 							app.Exe.Exec(job)
 							app.Tab.PushJob(job)
 
 						}else{
-							log.Println("Pulling job: skip (Can't pull job)", job.Id())
+							log.Println("[hrontabd] Pulling job: skip (Can't pull job)", job.Id())
 
 						}
 					}

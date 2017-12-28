@@ -20,11 +20,11 @@ type Config struct {
 func Resolve(conf Config) (client Handler){
 
 	switch conf.Type {
-	case "socket":
-		client = Handler( socket.NewHandler( socket.NewConnectionConf(conf.Options.Network, conf.Options.Address),  cli.New() ))
+		case "socket":
+			client = Handler( socket.NewHandler( socket.NewConnectionConf(conf.Options.Network, conf.Options.Address),  cli.New() ))
 
-	default:
-		log.Fatalln("[client.config]Resolve(panic): Unknown client type: ", conf.Type)
+		default:
+			log.Fatalln("[client.config]Resolve(panic): Unknown client type: ", conf.Type)
 	}
 
 	return client

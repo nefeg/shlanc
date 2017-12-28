@@ -51,8 +51,7 @@ func (c *List) view(job hrontabd.Job) string{
 	return fmt.Sprintln(
 		job.Id(),"\t",
 		job.CronLine(),"\t",
-		"\""+job.Command()+"\"", "\t",
-		"\""+job.Comment()+"\"", "\t",
+		"\""+job.Command()+"\"",
 	)
 }
 
