@@ -1,38 +1,26 @@
 {
-  "storage": {
-    "type": "redis",
-    "options": {
-      "network":  "tcp",
-      "address":  "127.0.0.1:6379",
-      "key-prefix": "hren-"
-    }
-  }
+	"storage": {
+		"type": "redis",
+		"options": {
+			"network":  "tcp",
+			"address":  "127.0.0.1:6379",
+			"key":      "hren"
+		}
+	},
 
-  "storage": {
-    "type": "file",
-    "options": {
-      "path":   "/tmp/hren.db"
-    }
-  }
+	"client": {
+		"type": "socket",
+		"options":{
+			"network":  "tcp",
+			"address":  "127.0.0.1:6609"
+		}
+	},
 
-  "storage": {
-    "type": "script",
-    "options": {
-      "path":   "/path/to/script.sh"
-    }
-  }
-
-
-  "client": {
-    "type": "telnet",
-    "options":{
-      "network":  "tcp",
-      "address":  "127.0.0.1:6607"
-    }
-  }
-
-    "executor":{
-        "type": "local",
-        "options":{}
-    }
+	"executor":{
+		"type": "local",
+		"options":{
+			"silent":   true,
+			"async":    true
+		}
+	}
 }

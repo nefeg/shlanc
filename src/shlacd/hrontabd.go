@@ -5,12 +5,12 @@ import (
 	"os"
 	"time"
 	"fmt"
-	"hrontabd/Tab"
-	"hrontabd"
-	"executor"
-	"storage"
-	"client"
-	. "config"
+	"shlacd/hrontabd/Tab"
+	"shlacd/hrontabd"
+	"shlacd/executor"
+	"shlacd/storage"
+	"shlacd/client"
+	. "shared/config"
 )
 
 

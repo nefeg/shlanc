@@ -3,11 +3,11 @@ package main
 import (
 	"runtime"
 	"log"
-	"sig"
+	"shared/sig"
 	"os"
 	"io/ioutil"
 	"encoding/json"
-	. "config"
+	. "shared/config"
 
 )
 

@@ -5,7 +5,7 @@ import (
 	"github.com/urfave/cli"
 	"fmt"
 	"errors"
-	"sig"
+	"shared/sig"
 	"net"
 	"bufio"
 	"regexp"
@@ -13,7 +13,7 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	"bytes"
-	. "config"
+	. "shared/config"
 )
 
 var ErrCmdArgs      = errors.New("ERR: expected argument")
@@ -42,7 +42,7 @@ func main(){
 
 	app := cli.NewApp()
 	app.Version     = "0.1"
-	app.Name        = "ShLAC"
+	app.Name        = "SHLAC"
 	app.Usage       = "SHlac Like As Cron"
 	app.Author      = "Evgeny Nefedkin"
 	app.Email       = "evgeny.nefedkin@umbrella-web.com"
@@ -52,7 +52,7 @@ func main(){
 	app.Flags =  []cli.Flag{
 		cli.StringFlag{
 			Name:  "config, c",
-			Value: `/etc/shlac/shlac.conf`,
+			Value: `/etc/shlacd/shlacd.conf`,
 			Usage: "path to daemon config-file",
 		},
 	}
@@ -94,9 +94,9 @@ func main(){
 				}()
 
 				// clean table before import
-				if c.Bool("purge"){ _purge(connection) }
+				if c.Bool("purge"){ purge(connection) }
 
-				_import(filePath, connection, !c.Bool("skip-check"))
+				Import(filePath, connection, !c.Bool("skip-check"))
 
 				return nil
 			},
@@ -120,7 +120,7 @@ func main(){
 				}()
 
 
-				_export(filePath, connection)
+				Export(filePath, connection)
 
 				return nil
 			},
@@ -128,6 +128,67 @@ func main(){
 	}
 
 	app.Run(os.Args)
+}
+
+
+func Export(filePath string, connection net.Conn){
+
+	flushConnection(connection) // clear socket buffer
+	connection.Write([]byte(`\l`))
+
+	response := flushConnection(connection) // read answer
+
+	response = response[:len(response)-4] // remove terminal bytes
+
+	re := regexp.MustCompile(`(?m)^.+?\s+`) // remove jobs id
+	response = re.ReplaceAll(response, []byte{})
+
+	fmt.Println(string(response))
+
+
+	ioutil.WriteFile(filePath, response, 0644)
+}
+
+func Import(filePath string, connection net.Conn, checkDuplicates bool){
+
+	file, err := os.Open(filePath)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	scanner     := bufio.NewScanner(file)
+	delimiter   := regexp.MustCompile(`\s+`)
+
+	for scanner.Scan() {
+		parts := delimiter.Split(scanner.Text(), 6)
+
+		cronLine    := strings.Join(parts[:5], " ")
+		commandLine := parts[5]
+
+		importLine := fmt.Sprintf(`\a -cron "%s" -cmd "%s"`+"\n", cronLine, commandLine)
+
+		if cronLine[:1] == `#`{
+			fmt.Printf("SKIPP (disabled)>> %s", importLine)
+			continue
+		}
+
+		if checkDuplicates && isDuplicated(scanner.Text(), connection){
+			fmt.Printf("SKIPP (duplicated)>> %s", importLine)
+			continue
+		}
+
+
+		fmt.Printf("IMPORT>> %s", importLine)
+		connection.Write([]byte(importLine))
+
+		// MAIN LOOP
+	}
+
+	if err := scanner.Err(); err != nil {
+		panic(err)
+	}
+
 }
 
 
@@ -159,95 +220,31 @@ func connect(config *Config) (connection net.Conn){
 	return conn
 }
 
-func clearConnection(connection net.Conn) (l int){
+func flushConnection(connection net.Conn) (flushed []byte){
 
-	buf := make([]byte, 4096) // big buffer
-	n, _ := connection.Read(buf)
-
-	return n
-}
-
-
-func _export(filePath string, connection net.Conn){
-
-	clearConnection(connection)
-	connection.Write([]byte(`\l`))
-
-	var response []byte
 	bufSize := 256
 	buf := make([]byte, bufSize)
 
 	for{
 		n,e := connection.Read(buf)
 
-		response = append(response, buf[:n]...)
+		flushed = append(flushed, buf[:n]...)
 
 		if e != nil || n < bufSize {break}
 	}
 
-	response = response[:len(response)-4] // remove terminal bytes
-
-	re := regexp.MustCompile(`(?m)^.+?\s+`) // remove jobs id
-	response = re.ReplaceAll(response, []byte{})
-
-	fmt.Println(string(response))
-
-
-	ioutil.WriteFile(filePath, response, 0644)
+	return flushed
 }
 
-func _import(filePath string, connection net.Conn, checkDuplicates bool){
-
-	file, err := os.Open(filePath)
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-
-	scanner     := bufio.NewScanner(file)
-	delimiter   := regexp.MustCompile(`\s+`)
-
-	for scanner.Scan() {
-		parts := delimiter.Split(scanner.Text(), 6)
-
-		cronLine    := strings.Join(parts[:5], " ")
-		commandLine := parts[5]
-
-		importLine := fmt.Sprintf(`\a -cron "%s" -cmd "%s"`+"\n", cronLine, commandLine)
-
-		if cronLine[:1] == `#`{
-			fmt.Printf("SKIPP (disabled)>> %s", importLine)
-			continue
-		}
-
-		if checkDuplicates && __isDuplicated(scanner.Text(), connection){
-			fmt.Printf("SKIPP (duplicated)>> %s", importLine)
-			continue
-		}
-
-
-		fmt.Printf("IMPORT>> %s", importLine)
-		connection.Write([]byte(importLine))
-
-		// MAIN LOOP
-	}
-
-	if err := scanner.Err(); err != nil {
-		panic(err)
-	}
-
-}
-
-
-func _purge(connection net.Conn){
+func purge(connection net.Conn){
 	connection.Write([]byte(`\r --all`))
 }
 
-func __isDuplicated(cronLine string, connection net.Conn) bool {
+func isDuplicated(cronLine string, connection net.Conn) bool {
 
 	cronLine = strings.Replace(cronLine, `"`, `\"`, -1)
 
-	clearConnection(connection)
+	flushConnection(connection)
 	connection.Write([]byte(`\g -c "` +cronLine+ `"`))
 
 	response := make([]byte, 8)
