@@ -85,7 +85,7 @@ func (app *app) runHrend(){
 					//log.Println("-------------")
 
 					timeInterval := time.Since(JTS).Seconds()
-					if timeInterval >0{
+					if timeInterval >0 && timeInterval <60{
 						log.Println("[hrontabd] Pulling job:", job.Id())
 						if j := app.Tab.PullJob(job.Id()); j != nil{
 
