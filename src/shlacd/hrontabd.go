@@ -76,12 +76,13 @@ func (app *app) runHrend(){
 
 				for _, job := range jobs{
 
-					JTS := job.TimeStart( time.Now().Add(-time.Duration(timeout)*time.Second) )
+					FromTime := time.Now()
+					JTS := job.TimeStart( FromTime )
 
-					//log.Println("-------------", job.CronLine())
-					//log.Println("Job", job.Id(), "now", time.Now().String())
-					//log.Println("Job", job.Id(), "jts",JTS.String())
-					//log.Println("Job", job.Id(), "since", time.Since(JTS))
+					//log.Println("-------------", job.CronLine(), job.Id())
+					//log.Println("now", time.Now().String())
+					//log.Println("must", JTS.String())
+					//log.Println("since", time.Since(JTS))
 					//log.Println("-------------")
 
 					timeInterval := time.Since(JTS).Seconds()

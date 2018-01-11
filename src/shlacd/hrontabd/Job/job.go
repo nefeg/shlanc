@@ -5,7 +5,7 @@ import (
 	"time"
 	"encoding/json"
 	"log"
-	"github.com/gorhill/cronexpr"
+	"github.com/umbrella-evgeny-nefedkin/cronexpr"
 )
 
 type job struct {
@@ -32,7 +32,7 @@ func (j *job)CronLine() string{
 
 func (j *job)TimeStart(fromTime time.Time) time.Time{
 
-	return cronexpr.MustParse(j.Cln).Next(fromTime)
+	return cronexpr.MustParse(j.CronLine()).Next(fromTime)
 }
 
 
