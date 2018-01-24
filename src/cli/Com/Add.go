@@ -8,6 +8,7 @@ import (
 	"errors"
 	"time"
 	"github.com/satori/go.uuid"
+	"log"
 )
 
 type Add struct{
@@ -20,7 +21,7 @@ const usage_ADD  = "usage: \n" +
 	"\t  add (\\a) [-index <index>] [--force] [--repeat <seconds>] -cmd <command to execute> -tm <2006-01-02T15:04:05Z07:00> \n" +
 	"\t  add (\\a) --help\n"
 
-const dateFormat = "2006-01-02 15:04:05 -0700 MST"
+const dateFormat = "2006-01-02 15:04:05 -07"
 
 func (c *Add)Exec(Tab hrentabd.Tab, args []string)  (response string, err error){
 
@@ -28,6 +29,8 @@ func (c *Add)Exec(Tab hrentabd.Tab, args []string)  (response string, err error)
 		if r := recover(); r!=nil{
 			*err        = errors.New("ERR: " + fmt.Sprint(r))
 			*response   = c.Usage()
+
+			log.Println(r)
 		}
 
 	}(&response, &err)
@@ -73,7 +76,7 @@ func (c *Add)Exec(Tab hrentabd.Tab, args []string)  (response string, err error)
 				hr.SetTimeStart(t)
 
 			}else {
-				response = err.Error()
+				panic(err)
 			}
 		}
 
