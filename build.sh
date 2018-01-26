@@ -3,8 +3,9 @@
 GOPATH=$(pwd)
 
 export GOPATH=$GOPATH
+export GOBIN=$GOPATH/bin
 
-go build -o bin/hrentabd src/*.go;
+go install hrentabd ; # [SH]lanc [L]ike [A]s [N]ot [C]ron
 
 while test $# -gt 0; do
     case "$1" in
@@ -12,8 +13,10 @@ while test $# -gt 0; do
             echo "HELP!"
             exit 0
             ;;
+
         -r|--run)
-            bin/hrentabd
+            `$GOBIN/hrentabd $GOPATH/config.json`
             ;;
     esac
 done
+echo "Done"
