@@ -34,6 +34,10 @@ func init()  {
 	slog.SetFormat(slog.FormatTimed)
 
 	sig.SIG_INT(&sigIntHandler)
+
+	cli.VersionPrinter = func(c *cli.Context) {
+		fmt.Fprintf(c.App.Writer, "client version=%s {%s}\n", c.App.Version, c.App.Compiled.Format("2006/01/02 15:04:05"))
+	}
 }
 
 
@@ -69,10 +73,6 @@ func main(){
 
 
 	Cli := capi.New()
-
-	cli.VersionPrinter = func(c *cli.Context) {
-		fmt.Printf("version=%s {%s}\n", c.App.Version, c.App.Compiled.Format("2006/01/02 15:04:05"))
-	}
 
 	Cli.Before = func(c *cli.Context) error {
 

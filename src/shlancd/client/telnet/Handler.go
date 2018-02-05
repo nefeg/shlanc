@@ -9,8 +9,8 @@ import (
 	capi "shlancd/cli"
 	"github.com/mattn/go-shellwords"
 	"io"
-	"regexp"
 	"errors"
+	"regexp"
 )
 
 type handler struct {
@@ -18,8 +18,9 @@ type handler struct {
 }
 
 const logPrefix = "[client.telnet] "
-const WlcMessage =  "HrenTab terminal connected OK\n" +
-					"Type \"help\" or \"\\h\" for show available commands"
+const WlcMessage =  "ShlaNc terminal connected OK\n" +
+					"server version: 0.23; client version: 0.3\n" +
+					"Type \"help\" for show available commands"
 
 var ErrConnectionClosed = errors.New("** command <QUIT> received")
 

@@ -139,42 +139,56 @@ Just use default config:
 Usage
 --------------
 
+- using shlanc cli:
+
 ```
-$ telnet 127.0.0.1 6607
-Trying 127.0.0.1...
-Connected to 127.0.0.1.
-Escape character is '^]'.
-HrenTab terminal connected OK
->>\h
-Unknown command
-  exit (\q) - meta-command, send exit error
-	usage:
-	  quit (\q)
+username:~/$ shlanc -h
+NAME:
+   ShLANC-client - [SH]lanc [L]ike [A]s [N]ot [C]ron
 
-  list (\l) - show list of jobs
-	usage:
-	  list (\l) -index <index>
-	  list (\l) -ts <timestamp>
-	  list (\l) --help
+USAGE:
+   shlanc [global options] command [command options] [arguments...]
 
-  add (\a) - add job into job list
-	usage:
-	  add (\a) [-index <index>] [--force] [--repeat <seconds>] -cmd <command to execute> -ttl <ttl>
-	  add (\a) [-index <index>] [--force] [--repeat <seconds>] -cmd <command to execute> -ts <timestamp>
-	  add (\a) [-index <index>] [--force] [--repeat <seconds>] -cmd <command to execute> -tm <2006-01-02T15:04:05Z07:00>
-	  add (\a) --help
+COMMANDS:
+     add, a         Add job
+     list, l        Show list of jobs
+     remove, rm, r  Remove jobs by ID or time of start
+     purge          Remove all jobs
+     get, g         Get job by id
+     help, h        Shows a list of commands or help for one command
 
-  rm (\r) - remove job from job list
-	usage:
-	  rm (\r) -index <index>
-	  rm (\r) -ts <timestamp>
-	  rm (\r) --all
-	  rm (\r) --help
-
-
->>
+GLOBAL OPTIONS:
+   --config value, -c value  path to daemon config-file
+   --debug                   show debug log
+   --help, -h                show help
+   --version, -v             print the version
 ```
 
+- using telnet (need real connection):
+```
+username:~/$ $ telnet 127.0.0.1 6607
+ Trying 127.0.0.1...
+ Connected to 127.0.0.1.
+ Escape character is '^]'.
+ ShlaNc terminal connected OK
+ Type "help" for show available commands
+ >>help
+ NAME:
+    ShLANC-client - [SH]lanc [L]ike [A]s [N]ot [C]ron
+
+ USAGE:
+    shlancd [global options] command [command options] [arguments...]
+
+ COMMANDS:
+      add, a         Add job
+      list, l        Show list of jobs
+      remove, rm, r  Remove jobs by ID or time of start
+      purge          Remove all jobs
+      get, g         Get job by id
+      exit, q        close connection
+      help, h        Shows a list of commands or help for one command
+ >>
+```
 
 
 License

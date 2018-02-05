@@ -33,6 +33,10 @@ func init()  {
 
 	slog.SetLevel(slog.LvlInfo)
 	slog.SetFormat(slog.FormatTimed)
+
+	cli.VersionPrinter = func(c *cli.Context) {
+		fmt.Fprintf(c.App.Writer, "server version=%s {%s}\n", c.App.Version, c.App.Compiled.Format("2006/01/02 15:04:05"))
+	}
 }
 
 
@@ -98,10 +102,6 @@ func main(){
 			Name:  "debug",
 			Usage: "show debug log",
 		},
-	}
-
-	cli.VersionPrinter = func(c *cli.Context) {
-		fmt.Printf("version=%s {%s}\n", c.App.Version, c.App.Compiled.Format("2006/01/02 15:04:05"))
 	}
 
 	Cli.Action = func(c *cli.Context) {
