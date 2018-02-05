@@ -8,9 +8,9 @@ func NewComPurge(context *Context) cli.Command {
 
 	return cli.Command{
 		Name:    "purge",
-		Usage:   "remove all jobs ",
-		UsageText: "Example: " +
-			"hren-cli2 purge",
+		Usage:   "Remove all jobs ",
+		UsageText: "" +
+			"shlanc purge",
 
 		Action:  func(c *cli.Context) error {
 

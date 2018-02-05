@@ -11,8 +11,10 @@ func NewComGet(context *Context) cli.Command {
 	return cli.Command{
 		Name:    "get",
 		Aliases: []string{"g"},
-		Usage:   "get job by id",
-		UsageText: "Example: \n",
+		Usage:   "Get job by id",
+		UsageText: "" +
+			"\tshlanc get <index>",
+
 		Action:  func(c *cli.Context) (err error) {
 
 			defer func(err *error){

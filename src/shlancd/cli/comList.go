@@ -13,9 +13,10 @@ func NewComList(context *Context) cli.Command {
 	return cli.Command{
 		Name:    "list",
 		Aliases: []string{"l"},
-		Usage:   "show existed jobs",
-		UsageText: "Example: " +
-			"hren-cli2 add '<cron-formatted line>'",
+		Usage:   "Show list of jobs",
+		UsageText: "" +
+			"\tshlanc list\n" +
+			"\tshlanc list -t <timestamp>",
 
 		Flags: 	[]cli.Flag{
 			cli.Int64Flag{

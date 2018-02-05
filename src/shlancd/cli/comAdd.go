@@ -17,11 +17,11 @@ func NewComAdd(context *Context) cli.Command {
 	return cli.Command{
 		Name:    "add",
 		Aliases: []string{"a"},
-		Usage:   "add jobs",
+		Usage:   "Add job",
 		UsageText: "" +
-			"\tadd [-i <index>] [-r <seconds>] [--force] -cmd <command to execute> -ttl <ttl> \n" +
-			"\tadd [-i <index>] [-r <seconds>] [--force] -cmd <command to execute> -ts <timestamp> \n" +
-			"\tadd [-i <index>] [-r <seconds>] [--force] -cmd <command to execute> -tm <" + DateFormat + "> \n",
+			"\tshlanc add [-i <index>] [-r <seconds>] [--force] -e <command to execute> -l <ttl> \n" +
+			"\tshlanc add [-i <index>] [-r <seconds>] [--force] -e <command to execute> -s <timestamp> \n" +
+			"\tshlanc add [-i <index>] [-r <seconds>] [--force] -e <command to execute> -t <" + DateFormat + "> \n",
 
 		Flags: []cli.Flag{
 			cli.StringFlag{
@@ -38,7 +38,7 @@ func NewComAdd(context *Context) cli.Command {
 			},
 			cli.Int64Flag{
 				Name:  "ts, s",
-				Usage: "Set time at job to execute (timestamp format). Required one of: ttl, ts or tm",
+				Usage: "Set time at job will start (timestamp format). Required one of: ttl, ts or tm",
 			},
 			cli.StringFlag{
 				Name:  "tm, t",

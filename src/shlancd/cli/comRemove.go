@@ -10,8 +10,11 @@ func NewComRemove(context *Context) cli.Command {
 	return cli.Command{
 		Name:    "remove",
 		Aliases: []string{"rm", "r"},
-		Usage:   "remove jobs ",
-		UsageText: "Example: \n",
+		Usage:   "Remove jobs by ID or time of start ",
+		UsageText: "" +
+			"\tshlanc remove <job id>\n" +
+			"\tshlanc remove --all\n" +
+			"\tshlanc remove -t <timestamp>",
 
 		Flags: 	[]cli.Flag{
 			cli.BoolFlag{
