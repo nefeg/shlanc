@@ -1,9 +1,9 @@
 package app
 
 import (
-	"hrentabd/storage"
-	"hrentabd/client"
-	"hrentabd/executor"
+	"shlancd/storage"
+	"shlancd/client"
+	"shlancd/executor"
 )
 
 type Config struct {

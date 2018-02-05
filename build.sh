@@ -5,7 +5,7 @@ GOPATH=$(pwd)
 export GOPATH=$GOPATH
 export GOBIN=$GOPATH/bin
 
-go install hrentabd ; # [SH]lanc [L]ike [A]s [N]ot [C]ron
+go install shlancd shlanc; # [SH]lanc [L]ike [A]s [N]ot [C]ron
 
 while test $# -gt 0; do
     case "$1" in
@@ -15,7 +15,7 @@ while test $# -gt 0; do
             ;;
 
         -r|--run)
-            `$GOBIN/hrentabd $GOPATH/config.json`
+            `$GOBIN/shlancd $GOPATH/config.json`
             ;;
     esac
 done
