@@ -52,7 +52,7 @@ func main(){
 	Cli := cli.NewApp()
 	Cli.Version             = "0.23"
 	Cli.Name                = "ShLANC-server"
-	Cli.Usage               = "[SH]lac [L]ike [A]s [N]ot [C]ron"
+	Cli.Usage               = "[SH]lanc [L]ike [A]s [N]ot [C]ron"
 	Cli.Author              = "Evgeny Nefedkin"
 	Cli.Compiled            = time.Now()
 	Cli.Email               = "evgeny.nefedkin@umbrella-web.com"
