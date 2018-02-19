@@ -14,10 +14,14 @@ Features
 INSTALL
 -------
 
+#### From .deb package
+        sudo dpkg -i path/to/package.deb
+
+#### Copy binaries
 Just copy binary file and create config file
 
-- fix rights `chmod +x hrentabd`
-- run `./hrentabd config.json` 
+- fix rights `chmod +x shlancd`
+- run `./shlancd -c config.json` 
 
 
 Configuring

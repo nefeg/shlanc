@@ -3,6 +3,8 @@ package cli
 import (
 	"github.com/urfave/cli"
 	"time"
+	"errors"
+	"fmt"
 )
 
 func NewComRemove(context *Context) cli.Command {
@@ -27,7 +29,13 @@ func NewComRemove(context *Context) cli.Command {
 			},
 		},
 
-		Action:  func(c *cli.Context) error {
+		Action:  func(c *cli.Context) (err error) {
+
+			defer func(err *error){
+				if r := recover(); r != nil{
+					*err = errors.New(fmt.Sprintf("%s", r))
+				}
+			}(&err)
 
 			if ts := c.Int64("timestamp"); ts > 0 {
 				(*context).RemoveTime(time.Unix(ts,0))
@@ -42,7 +50,7 @@ func NewComRemove(context *Context) cli.Command {
 				panic(ErrCmdArgs)
 			}
 
-			return nil
+			return err
 		},
 	}
 }

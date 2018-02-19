@@ -35,7 +35,7 @@ func (h *handler) Handle(context capi.Context){
 
 	IPC, err := net.Listen(h.addr.Network(), h.addr.String())
 	if err != nil {
-		slog.PanicF("%s %s %s",logPrefix,  "panic:", err.Error())
+		slog.FatalLn(logPrefix + " panic: ", err.Error())
 	}
 	slog.InfoF(logPrefix + "Listening: %s://%s\n", IPC.Addr().Network(), IPC.Addr().String())
 	slog.InfoLn(logPrefix + "Connection ID: ", &IPC)

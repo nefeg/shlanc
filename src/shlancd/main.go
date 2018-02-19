@@ -50,7 +50,7 @@ func main(){
 	var config      *Config
 
 	Cli := cli.NewApp()
-	Cli.Version             = "0.23"
+	Cli.Version             = "0.24"
 	Cli.Name                = "ShLANC-server"
 	Cli.Usage               = "[SH]lanc [L]ike [A]s [N]ot [C]ron"
 	Cli.Author              = "Evgeny Nefedkin"

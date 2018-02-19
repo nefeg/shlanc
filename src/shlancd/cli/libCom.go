@@ -8,9 +8,7 @@ import (
 
 )
 
-var ErrCmdArgs  = errors.New("ERR: expected argument")
-
-
+var ErrCmdArgs  = errors.New("ERR: expected argument\nSee `help`(for telnet) or `shlanc --help`(for cli)")
 
 
 func view(job sapi.Job) string{

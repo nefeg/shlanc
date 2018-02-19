@@ -68,11 +68,11 @@ func (app *hrentabd) runHrend(strict bool){
 
 					slog.InfoF("%s Pulling job: %s\n", logPrefix, job.Index())
 					if !app.table.PullJob(job){
-						slog.InfoF("%s Pulling job: skip (Can't pull job) %s", logPrefix, job.Index())
+						slog.InfoF("%s Pulling job: skip (Can't pull job) %s\n", logPrefix, job.Index())
 
 					}else{
 
-						slog.InfoF("%s Job started: %s", logPrefix, job.Index())
+						slog.InfoF("%s Job started: %s\n", logPrefix, job.Index())
 						app.executor.Exec(job)
 
 
