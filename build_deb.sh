@@ -11,7 +11,7 @@
 # date ; sudo service ntp stop ; sudo ntpdate -s time.nist.gov ; sudo service ntp start ; date
 
 # DIR: %project root%
-VERSION="0.25-0ubuntu1ppa6~trusty"
+VERSION="0.25-0ubuntu1ppa8~trusty"
 BUILD_NAME="shlanc-${VERSION}"
 BUILD_NAME_ALT="shlanc_${VERSION}"
 WORK_DIR=$(pwd)"/build"

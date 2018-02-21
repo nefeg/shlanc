@@ -9,7 +9,7 @@ CONF = /etc/shlanc
 
 ## These will be provided to the target
 VERSION := 1.0.0
-BUILD := `date`
+BUILD = $(shell date +%s)
 #
 ## Use linker flags to provide version/build settings to the target
 LDFLAGS=-ldflags "-X=main.Version=$(VERSION) -X=main.Build=$(BUILD)"
@@ -18,6 +18,7 @@ LDFLAGS=-ldflags "-X=main.Version=$(VERSION) -X=main.Build=$(BUILD)"
 
 all:
 	mkdir -p $(GOBIN)
+	@echo $(LDFLAGS)
 	GOPATH=$(GOPATH) GOBIN=$(GOBIN) go install $(LDFLAGS) $(TARGET1) $(TARGET2)
 
 install:
