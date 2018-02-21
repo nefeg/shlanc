@@ -62,7 +62,7 @@ rm debian/*.EX
 debuild -S -sa
 
 ## Upload to PPA
-dput -d ppa:onm/shlanc ${WORK_DIR}/${BUILD_NAME_ALT}-1_source.changes
+#dput -d ppa:onm/shlanc ${WORK_DIR}/${BUILD_NAME_ALT}-1_source.changes
 
-rm -rf $WORK_DIR
+#rm -rf $WORK_DIR
 
