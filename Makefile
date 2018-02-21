@@ -18,10 +18,6 @@ LDFLAGS=-ldflags "-X=main.Version=$(VERSION) -X=main.Build=$(BUILD)"
 
 all:
 	mkdir -p $(GOBIN)
-	@echo " * load dependensies"
-	GOPATH=$(GOPATH) GOBIN=$(GOBIN) go get ./...
-
-	@echo " * compile binaries"
 	GOPATH=$(GOPATH) GOBIN=$(GOBIN) go install $(LDFLAGS) $(TARGET1) $(TARGET2)
 
 install:
