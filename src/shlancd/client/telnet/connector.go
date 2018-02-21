@@ -17,7 +17,7 @@ type responder struct{
 
 func (r *responder) Write(b []byte) (n int, err error){
 
-	// slog.DebugLn("[client.telnet] Write :", len(p), r.last)
+	// slog.Debugln("[client.telnet] Write :", len(p), r.last)
 
 	r.connection.Write(b)
 

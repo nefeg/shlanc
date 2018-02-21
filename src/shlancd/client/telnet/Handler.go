@@ -35,10 +35,10 @@ func (h *handler) Handle(context capi.Context){
 
 	IPC, err := net.Listen(h.addr.Network(), h.addr.String())
 	if err != nil {
-		slog.FatalLn(logPrefix + " panic: ", err.Error())
+		slog.Fatalln(logPrefix + " panic: ", err.Error())
 	}
-	slog.InfoF(logPrefix + "Listening: %s://%s\n", IPC.Addr().Network(), IPC.Addr().String())
-	slog.InfoLn(logPrefix + "Connection ID: ", &IPC)
+	slog.Infof(logPrefix + "Listening: %s://%s\n", IPC.Addr().Network(), IPC.Addr().String())
+	slog.Infoln(logPrefix + "Connection ID: ", &IPC)
 
 
 	defer func(){
@@ -52,16 +52,16 @@ func (h *handler) Handle(context capi.Context){
 		if Connection, err := IPC.Accept(); err == nil {
 
 			go func(){
-				slog.InfoF(logPrefix + "New client connection accepted [connection ID: %v]\n", &Connection)
+				slog.Infof(logPrefix + "New client connection accepted [connection ID: %v]\n", &Connection)
 
 				h.handleConnection(Connection, context)
 				Connection.Close()
 
-				slog.InfoF(logPrefix + "Client connection closed [connection ID: %v]\n", &Connection)
+				slog.Infof(logPrefix + "Client connection closed [connection ID: %v]\n", &Connection)
 			}()
 
 		}else{
-			slog.CritLn(err.Error())
+			slog.Critln(err.Error())
 			continue
 		}
 	}
@@ -79,14 +79,14 @@ func (h *handler)handleConnection(Connection net.Conn, context capi.Context){
 			if r == io.EOF {
 				*response = "client socket closed."
 				Responder.WriteString("\n" + (*response) + "\n")
-				slog.InfoLn(logPrefix + "Session closed by cause: " + (*response))
+				slog.Infoln(logPrefix + "Session closed by cause: " + (*response))
 
 			}else{
-				slog.InfoLn(logPrefix + "Session closed by cause: " , r)
+				slog.Infoln(logPrefix + "Session closed by cause: " , r)
 			}
 		}else{
 			Responder.WriteString("\n" + (*response) + "\n")
-			slog.InfoLn(logPrefix + "Session closed by cause: " + (*response))
+			slog.Infoln(logPrefix + "Session closed by cause: " + (*response))
 		}
 	}(&response)
 
@@ -114,7 +114,7 @@ func (h *handler)handleConnection(Connection net.Conn, context capi.Context){
 
 			Action:  func(c *cli.Context) error {
 
-				slog.DebugLn("Action: exit")
+				slog.Debugln("Action: exit")
 
 				c.App.Writer.Write([]byte("Sending <QUIT> signal..."))
 				panic(ErrConnectionClosed)
@@ -133,7 +133,7 @@ func (h *handler)handleConnection(Connection net.Conn, context capi.Context){
 
 	Cli.ExitErrHandler = func(c *cli.Context, err error){
 		c.App.Writer.Write([]byte(err.Error()))
-		slog.DebugLn(logPrefix, err)
+		slog.Debugln(logPrefix, err)
 	}
 
 
@@ -142,25 +142,25 @@ func (h *handler)handleConnection(Connection net.Conn, context capi.Context){
 		if rcb, err := Responder.ReadData(); len(rcb) != 0{
 
 			if err != nil {
-				slog.CritLn(err.Error())
+				slog.Critln(err.Error())
 				response = err.Error()
 				Responder.WriteString(response)
 
 			}else{
 
-				slog.DebugLn(logPrefix, "Args (byte,raw):", rcb)
-				slog.DebugLn(logPrefix, "Args (string,raw):", string(rcb))
+				slog.Debugln(logPrefix, "Args (byte,raw):", rcb)
+				slog.Debugln(logPrefix, "Args (string,raw):", string(rcb))
 
 				if match,_ := regexp.Match(`^\w.*`, rcb); match != true{
 					rcb = []byte("help")
-					slog.DebugLn(logPrefix, "Incorrect args, show help")
+					slog.Debugln(logPrefix, "Incorrect args, show help")
 				}
 
 				args,_ := shellwords.Parse("self " + string(rcb))
 
 				Cli.Run( args )
 
-				slog.DebugLn(logPrefix, "Cli.Run (complete)")
+				slog.Debugln(logPrefix, "Cli.Run (complete)")
 			}
 		}
 	}

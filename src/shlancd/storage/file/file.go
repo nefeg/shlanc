@@ -41,7 +41,7 @@ func (f *storageFile) Connect() (isConnected bool){
 		if fh, err := os.OpenFile(f.storagePath, os.O_CREATE|os.O_RDWR|os.O_SYNC, 0644); err == nil{
 			f.storage = fh
 		}else{
-			slog.PanicLn(err)
+			slog.Panicln(err)
 		}
 	}
 
@@ -50,9 +50,9 @@ func (f *storageFile) Connect() (isConnected bool){
 
 	isConnected = f.isConnected()
 
-	slog.InfoLn("[storage.file] Connect: ", f.isConnected())
-	slog.InfoLn("[storage.file] Path: ", f.storagePath)
-	slog.InfoLn("[storage.file] Version: ", version)
+	slog.Infoln("[storage.file] Connect: ", f.isConnected())
+	slog.Infoln("[storage.file] Path: ", f.storagePath)
+	slog.Infoln("[storage.file] Version: ", version)
 
 
 
@@ -132,9 +132,13 @@ func (f *storageFile) Version() (version string){
 
 func (f *storageFile) incVersion() (version string){
 
-	version = uuid.NewV4().String()
+	if v, err := uuid.NewV4(); err == nil{
+		f.version = v.String()
+	}else{
+		panic(err)
+	}
 
-	return version
+	return f.version
 }
 
 
@@ -190,9 +194,9 @@ func (f *storageFile) commit() (size int, err error){
 	oldVersion := f.Version()
 	newVersion := f.incVersion()
 
-	slog.InfoLn("[storage.file] Version: ", "update:", oldVersion,"-->",newVersion)
+	slog.Infoln("[storage.file] Version: ", "update:", oldVersion,"-->",newVersion)
 
-	slog.DebugLn("[storage.file] commit: ", size, err, dump)
+	slog.Debugln("[storage.file] commit: ", size, err, dump)
 
 	return size, err
 }
@@ -218,7 +222,7 @@ func (f *storageFile) loadItems(){
 
 
 			if f.hasIndex(fi.Index()){
-				slog.PanicLn("[storage.file] loadItems: Duplicated index - ", fi.Index())
+				slog.Panicln("[storage.file] loadItems: Duplicated index - ", fi.Index())
 			}
 
 			f.addItem( fi )
@@ -228,9 +232,9 @@ func (f *storageFile) loadItems(){
 			break
 
 		}else{// unexpected error
-			slog.PanicLn(e)
+			slog.Panicln(e)
 		}
 	}
 
-	slog.InfoLn("[storage.file] loadItems: Records loaded - ", c)
+	slog.Infoln("[storage.file] loadItems: Records loaded - ", c)
 }

@@ -30,13 +30,13 @@ type Table interface {
 //###############################################
 func NewTable (s Storage) *table{
 
-	slog.DebugLn("[api.Table] NewTable: creating...")
+	slog.Debugln("[api.Table] NewTable: creating...")
 
 	t := &table{ db:s, hTList:JobListTime{} }
 
 	t.load()
 
-	slog.DebugLn("[api.Table] NewTable: ", t)
+	slog.Debugln("[api.Table] NewTable: ", t)
 
 	return t
 }
@@ -105,10 +105,10 @@ func (h *table) PushJobs(override bool, l ...Job) (pushed int){
 
 	defer func(pushed *int){
 
-		slog.InfoF("[api.Table] PushJobs: %d jobs pushed\n", *pushed)
+		slog.Infof("[api.Table] PushJobs: %d jobs pushed\n", *pushed)
 
 		if r := recover(); r!=nil{
-			slog.PanicF("[api.Table] PushJobs (panic): %v\n", r)
+			slog.Panicf("[api.Table] PushJobs (panic): %v\n", r)
 			panic(r)
 		}
 
@@ -141,7 +141,7 @@ func (h *table) PushJobs(override bool, l ...Job) (pushed int){
 
 func (h *table) PullJob(job Job) bool{
 
-	slog.DebugLn("[api.Table] PullJob: ", job)
+	slog.Debugln("[api.Table] PullJob: ", job)
 
 	if jobString := h.db.Pull(job.Index()); jobString != ""{
 		job.UnSerialize(jobString)
@@ -181,14 +181,14 @@ func (h *table) Close(){
 func (h *table) sync(){
 
 	if h.version != h.db.Version(){
-		slog.DebugF("[api.Table] sync: %v --> %v\n", h.version, h.db.Version())
+		slog.Debugf("[api.Table] sync: %v --> %v\n", h.version, h.db.Version())
 		h.load()
 	}
 }
 
 func (h *table) load() (loaded int){
 
-	slog.DebugLn("[api.Table] _load: loading database")
+	slog.Debugln("[api.Table] _load: loading database")
 
 	h.version   = h.db.Version()
 	h.hTList    = JobListTime{}
@@ -202,7 +202,7 @@ func (h *table) load() (loaded int){
 
 func (h *table) loadJob(job Job){
 
-	slog.DebugLn("[api.Table] _loadJob: ", job)
+	slog.Debugln("[api.Table] _loadJob: ", job)
 
 	currentTs := job.At().Unix()
 	if _,isset := h.hTList[currentTs]; !isset{
@@ -211,7 +211,7 @@ func (h *table) loadJob(job Job){
 
 	h.hTList[currentTs][job.Index()] = job
 
-	slog.DebugLn("[api.Table] _loadJob: hTList --> ", job)
+	slog.Debugln("[api.Table] _loadJob: hTList --> ", job)
 }
 
 

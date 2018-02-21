@@ -35,7 +35,7 @@ func (app *hrentabd) Run(){
 		code    := 0
 		message := "no message"
 		if r:= recover(); r!=nil{
-			slog.CritF("%s %v\n", logPrefix, r)
+			slog.Critf("%s %v\n", logPrefix, r)
 			code = 1
 			message = fmt.Sprint(r)
 		}
@@ -51,7 +51,7 @@ func (app *hrentabd) Stop(code int, message interface{}){
 
 	app.table.Close()
 
-	slog.InfoF("*** Application terminated with message: %s\n\n", message)
+	slog.Infof("*** Application terminated with message: %s\n\n", message)
 
 	os.Exit(code)
 }
@@ -66,13 +66,13 @@ func (app *hrentabd) runHrend(strict bool){
 
 				for _, job := range list{
 
-					slog.InfoF("%s Pulling job: %s\n", logPrefix, job.Index())
+					slog.Infof("%s Pulling job: %s\n", logPrefix, job.Index())
 					if !app.table.PullJob(job){
-						slog.InfoF("%s Pulling job: skip (Can't pull job) %s\n", logPrefix, job.Index())
+						slog.Infof("%s Pulling job: skip (Can't pull job) %s\n", logPrefix, job.Index())
 
 					}else{
 
-						slog.InfoF("%s Job started: %s\n", logPrefix, job.Index())
+						slog.Infof("%s Job started: %s\n", logPrefix, job.Index())
 						app.executor.Exec(job)
 
 
