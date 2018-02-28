@@ -14,7 +14,21 @@ Features
 INSTALL
 -------
 
+#### From Ubuntu repository via apt-get
+
+    # add PPA to apt source list:
+    sudo add-apt-repository ppa:onm/shlanc
+    sudo apt-get update
+    
+    #install package
+    sudo apt-get install shlanc
+
+
+
 #### From .deb package
+
+Download package from [Launchpad PPA](https://launchpad.net/~onm/+archive/ubuntu/shlanc/+packages) and install:
+
         sudo dpkg -i path/to/package.deb
 
 #### Copy binaries
