@@ -2,30 +2,72 @@
 # project root
 #   |_src
 #   |_WORK_DIR
+#       |_SOURCE_DIR
 #       |_TMP_DIR
 #       |_BUILD_NAME.tar.gz
 #
 #
+
+#
+# Usage ./this-script <version> <isTest>
+# Example: ./this-script 0.25-0ubuntu1 0
 #
 
 # date ; sudo service ntp stop ; sudo ntpdate -s time.nist.gov ; sudo service ntp start ; date
+#
+# *** DIR: %project root%
+#
 
-# DIR: %project root%
-VERSION="0.25-0ubuntu1ppa8~trusty"
+###################################
+#   checking version              #
+###################################
+if [[ $1 == '' ]];then
+    echo "expected version (ex.: 0.25-0ubuntu1)"
+    exit 1
+fi
+
+
+VERSION="$1"
+IS_TEST="$2"
 BUILD_NAME="shlanc-${VERSION}"
 BUILD_NAME_ALT="shlanc_${VERSION}"
 WORK_DIR=$(pwd)"/build"
 TMP_DIR=$WORK_DIR/tmp
+SOURCE_DIR=$WORK_DIR/source
 
 export DEBEMAIL="evgeny.nefedkin@umbrella-web.com"
 export DEBFULLNAME="Evgeny Nefedkin"
 
+
+###################################
+#   making workspace              #
+###################################
+#git archive --format=tar.gz -o $WORK_DIR/$BUILD_NAME.tar.gz ppa
+## copy sources
+mkdir -p $SOURCE_DIR
+cp -rf src/ $SOURCE_DIR/src/
+cp Makefile $SOURCE_DIR/Makefile
+cp config.json $SOURCE_DIR/config.json
+cp readme.md $SOURCE_DIR/readme.md
+
+## remove .git's directories
+find $SOURCE_DIR/ -name .git | rm -fr
+
+## make archive
+#
+# *** DIR: %project root%/$WORK_DIR/$SOURCE_DIR
+#
+cd $SOURCE_DIR
+tar -czf ../$BUILD_NAME.tar.gz ./*
+
+
+###################################
+#   make skeleton                 #
+###################################
 mkdir $TMP_DIR -p
-
-git archive --format=tar.gz -o $WORK_DIR/$BUILD_NAME.tar.gz ppa
-
 cd $TMP_DIR;
 dh_make -f ../$BUILD_NAME.tar.gz -s -e evgeny.nefedkin@umbrella-web.com -c gpl2 -y --createorig -p $BUILD_NAME_ALT
+
 
 ###################################
 #   edit 'debian/control' file    #
@@ -53,18 +95,21 @@ sed -ri 's/^#.+//' debian/copyright
 #   edit 'debian/changelog' file  #
 ###################################
 sed -i 's/unstable;/trusty;/' debian/changelog
-vi debian/changelog
+
+if [[ "$IS_TEST" != "1" ]];then
+    vi debian/changelog
+fi
 
 
 ## Remove useless files
-rm debian/*.ex
-rm debian/*.EX
-
-## build package (https://help.launchpad.net/Packaging/PPA/BuildingASourcePackage)
-debuild -S -sa
-
-## Upload to PPA
-dput -d ppa:onm/shlanc ${WORK_DIR}/${BUILD_NAME_ALT}-1_source.changes
-
-rm -rf $WORK_DIR
+rm debian/*.ex &>/dev/null
+rm debian/*.EX &>/dev/null
+#
+### build package (https://help.launchpad.net/Packaging/PPA/BuildingASourcePackage)
+#debuild -S -sa
+#
+### Upload to PPA
+#dput -d ppa:onm/shlanc ${WORK_DIR}/${BUILD_NAME_ALT}-1_source.changes
+#
+#rm -rf $WORK_DIR
 
