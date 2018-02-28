@@ -24,7 +24,7 @@ func Resolve(conf Config) (exe api.Executor){
 		exe = NewExecutorLocal(conf.Options.Silent, conf.Options.Async)
 
 	default:
-		slog.PanicLn("Unknown client type")
+		slog.Panicln("Unknown client type")
 	}
 
 	return exe

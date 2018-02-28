@@ -39,7 +39,7 @@ func (f *storageRedis) Connect() (isConnected bool){
 		if conn, err := redis.Dial(f.network, f.addr) ; err == nil{
 			f.storage = conn
 		}else{
-			slog.PanicLn(err)
+			slog.Panicln(err)
 		}
 	}
 
@@ -48,8 +48,8 @@ func (f *storageRedis) Connect() (isConnected bool){
 	var version string
 	if version = f.Version(); version == "0" {version = f.incVersion()}
 
-	slog.InfoLn("[storage.redis] Connect: ", f.isConnected())
-	slog.InfoLn("[storage.redis] Version: ", version)
+	slog.Infoln("[storage.redis] Connect: ", f.isConnected())
+	slog.Infoln("[storage.redis] Version: ", version)
 
 	return isConnected
 }
@@ -67,11 +67,11 @@ func (f *storageRedis) Pull(index string) (record string){
 
 	defer f.unLock(index)
 
-	slog.InfoLn("[storage.redis]Pull: ", index)
+	slog.Infoln("[storage.redis]Pull: ", index)
 	if f.lock(index){
 
 		if record,_ = f.storage.Cmd("HGET", f.storageKey, index).Str(); record == ""{
-			slog.InfoLn("[storage.redis] Pull: no data for index", index)
+			slog.Infoln("[storage.redis] Pull: no data for index", index)
 		}
 
 		f.storage.Cmd("HDEL", f.storageKey, index)
@@ -79,7 +79,7 @@ func (f *storageRedis) Pull(index string) (record string){
 		f.incVersion()
 
 	}else{
-		slog.InfoLn("[storage.redis] Pull: lock fail for", index)
+		slog.Infoln("[storage.redis] Pull: lock fail for", index)
 	}
 
 	return record
@@ -87,7 +87,7 @@ func (f *storageRedis) Pull(index string) (record string){
 
 func (f *storageRedis) Push(index string, record string, force bool) (result bool, err error){
 
-	slog.DebugLn("[storage.redis] Push: ", index, record, force)
+	slog.Debugln("[storage.redis] Push: ", index, record, force)
 
 	var resp int
 
@@ -104,8 +104,8 @@ func (f *storageRedis) Push(index string, record string, force bool) (result boo
 		f.incVersion()
 	}
 
-	slog.InfoLn("[storage.redis] Push: ", "result:", result)
-	slog.InfoLn("[storage.redis] Push: ", "error:", err)
+	slog.Infoln("[storage.redis] Push: ", "result:", result)
+	slog.Infoln("[storage.redis] Push: ", "error:", err)
 
 	return result, err
 }
@@ -141,7 +141,7 @@ func (f *storageRedis) incVersion() (version string){
 
 	version = strconv.Itoa(intVersion)
 
-	slog.InfoLn("[storage.redis] Version: ", "update:", oldVersion,"-->",intVersion)
+	slog.Infoln("[storage.redis] Version: ", "update:", oldVersion,"-->",intVersion)
 
 	return version
 }

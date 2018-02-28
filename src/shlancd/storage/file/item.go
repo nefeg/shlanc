@@ -31,7 +31,7 @@ func NewItemFromString(itemString string) Item{
 	fi := &item{}
 
 	if parts := bytes.Split([]byte(itemString), []byte{0}); len(parts) != 2{
-		slog.InfoLn("[storage.file.item] FromString: Corrupted data")
+		slog.Infoln("[storage.file.item] FromString: Corrupted data")
 
 	}else{
 		fi.index    = string(parts[0])

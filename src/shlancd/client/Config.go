@@ -30,7 +30,7 @@ func Resolve(conf Config) (client Handler){
 		client = native.New()
 
 	default:
-		slog.FatalF("%s Resolve(panic): Unknown client type: %s", logPrefix, conf.Type)
+		slog.Fatalf("%s Resolve(panic): Unknown client type: %s", logPrefix, conf.Type)
 	}
 
 	return client

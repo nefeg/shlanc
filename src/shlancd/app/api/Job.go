@@ -138,24 +138,24 @@ func (c *commonJob) Serialize() string{
 
 	s, err := c.MarshalJSON()
 	if err != nil{
-		slog.FatalF("[api.Job] Serialize: %v\n", err)
+		slog.Fatalf("[api.Job] Serialize: %v\n", err)
 	}
 
-	slog.DebugF("[api.Job] Serialize: %s [%v]\n", string(s), err)
+	slog.Debugf("[api.Job] Serialize: %s [%v]\n", string(s), err)
 
 	return string(s)
 }
 
 func (c *commonJob) UnSerialize(data string) (job Job){
 
-	slog.DebugLn("[api.Job] UnSerialize: ", data)
+	slog.Debugln("[api.Job] UnSerialize: ", data)
 
 	err := c.UnmarshalJSON([]byte(data))
 	if err != nil{
-		slog.FatalF("[api.Job] %v", err)
+		slog.Fatalf("[api.Job] %v", err)
 	}
 
-	slog.DebugLn("[api.Job] UnSerialize: ", c, err)
+	slog.Debugln("[api.Job] UnSerialize: ", c, err)
 
 	return Job(c)
 }

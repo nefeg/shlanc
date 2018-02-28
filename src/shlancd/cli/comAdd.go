@@ -77,7 +77,11 @@ func NewComAdd(context *Context) cli.Command {
 
 			INDEX := c.String("index")
 			if INDEX == "" {
-				INDEX = uuid.NewV4().String()
+				if i, e := uuid.NewV4(); e != nil{
+					INDEX = i.String()
+				}else{
+					panic(err)
+				}
 			}
 
 			REPEAT := c.Int64("repeat")

@@ -50,7 +50,7 @@ func main(){
 	var config      *Config
 
 	Cli := cli.NewApp()
-	Cli.Version             = "0.24"
+	Cli.Version             = "0.25"
 	Cli.Name                = "ShLANC-server"
 	Cli.Usage               = "[SH]lanc [L]ike [A]s [N]ot [C]ron"
 	Cli.Author              = "Evgeny Nefedkin"
@@ -63,15 +63,15 @@ func main(){
 
 		if c.GlobalBool(FL_DEBUG){
 			slog.SetLevel(slog.LvlDebug)
-			slog.DebugF("%s Starting...\n", logPrefix)
-			slog.DebugLn(logPrefix, " Args:", os.Args)
+			slog.Debugf("%s Starting...\n", logPrefix)
+			slog.Debugln(logPrefix, " Args:", os.Args)
 		}
 
 		// Override config
 		if confFile := c.GlobalString(FL_CONFIG); confFile != ""{
 			ConfigPaths = []string{confFile}
 		}
-		slog.DebugLn(logPrefix, " Config paths:", ConfigPaths)
+		slog.Debugln(logPrefix, " Config paths:", ConfigPaths)
 
 		config = LoadConfig(ConfigPaths)
 		//
